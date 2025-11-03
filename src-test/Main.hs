@@ -1,11 +1,10 @@
 module Main (main) where
 
 import qualified ProtoDoll.Parse as PD
+import qualified ProtoDoll.ParseResult as PR
 import System.Directory (doesFileExist, createDirectoryIfMissing)
 import System.FilePath (takeDirectory)
 import System.Exit (exitFailure)
-import Control.Monad (when)
-import Data.Function ((&))
 
 -- Golden test:
 -- - reads test input at ../story_predoll-0.txt (project root)
@@ -15,11 +14,11 @@ import Data.Function ((&))
 -- inspect and accept the new golden.
 main :: IO ()
 main = do
-  let inputPath  = "../story_predoll-0.txt"
+  let inputPath  = "test/story_predoll-0.txt"
       goldenPath = "test/golden/parse_golden.txt"
 
   parsed <- PD.parseFile inputPath
-  let actual = show parsed
+  let actual = prettyPrint parsed
 
   exists <- doesFileExist goldenPath
   if not exists
@@ -39,3 +38,12 @@ main = do
           putStrLn "---- Actual ----"
           putStrLn actual
           exitFailure
+
+prettyPrint :: [PR.Foot] -> String
+prettyPrint feet = unlines $ prettyPrintFoot <$> feet
+
+prettyPrintFoot :: PR.Foot -> String
+prettyPrintFoot foot = unlines $ zipWith prettyPrintPhoneme [0..] foot
+
+prettyPrintPhoneme :: Int -> PR.Phoneme -> String
+prettyPrintPhoneme n p = replicate n '\t' ++ show p

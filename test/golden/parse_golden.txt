@@ -1,0 +1,65 @@
+Chord [A,I]
+	Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	Chord [Q]
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			Chord [Q]
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	Chord [O,U]
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			Chord [Q]
+				Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+					Chord [A,I]
+						Chord [U,O,Q]
+							Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+								Chord [Q]
+
+Chord [U,O,E,I]
+	Consonant (MkConsonant {manner = P, voice = White, place = Back})
+		Chord [Q]
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+
+Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+	Chord [Q,A,Q]
+		Chord [A,Q,O]
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+				Silence Gap
+
+Chord [A]
+	Consonant (MkConsonant {manner = S, voice = White, place = Front})
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			Chord [Q,I,Q]
+				Chord [A,I]
+					Liminal H2W
+						Chord [Q]
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	Chord [O,A,Q,Q]
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Chord [A,O]
+				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+					Chord [Q]
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+							Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+								Chord [Q]
+									Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord [A]
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+			Chord [Q]
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Chord [Q]
+						Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+							Silence PhraseBoundary
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									Chord [Q]
+										Consonant (MkConsonant {manner = S, voice = White, place = Front})
+
