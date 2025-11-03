@@ -95,7 +95,6 @@ parseSingleVowel =
   <|> (char 'i' $> I)
   <|> (char 'o' $> O)
   <|> (char 'u' $> U)
-  <|> (char 'q' $> Q)
 
 -- | Parse a consonant: manner + place + voice.
 parseConsonant :: Parser Phoneme
@@ -131,7 +130,7 @@ parsePlace =
 -- Recognizes "t0" and "h2w" and wraps them in the 'Liminal' Phoneme.
 parseLiminal :: Parser Phoneme
 parseLiminal =
-  Liminal <$> ((string "t0" $> T0) <|> (string "h2w" $> H2W))
+  Liminal <$> ((string "t0" $> T0) <|> (string "h2w" $> H2W) <|> (string "q" $> NeutralVowel))
 
 -- | Parse silence / boundary tokens.
 --

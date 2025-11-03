@@ -1,10 +1,10 @@
 module Main (main) where
 
-import qualified ProtoDoll.Parse as PD
-import qualified ProtoDoll.ParseResult as PR
-import System.Directory (doesFileExist, createDirectoryIfMissing)
-import System.FilePath (takeDirectory)
+import ProtoDoll.Parse qualified as PD
+import ProtoDoll.ParseResult qualified as PR
+import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.Exit (exitFailure)
+import System.FilePath (takeDirectory)
 
 -- Golden test:
 -- - reads test input at ../story_predoll-0.txt (project root)
@@ -14,7 +14,7 @@ import System.Exit (exitFailure)
 -- inspect and accept the new golden.
 main :: IO ()
 main = do
-  let inputPath  = "test/story_predoll-0.txt"
+  let inputPath = "test/story_predoll-0.txt"
       goldenPath = "test/golden/parse_golden.txt"
 
   parsed <- PD.parseFile inputPath
@@ -43,7 +43,7 @@ prettyPrint :: [PR.Foot] -> String
 prettyPrint feet = unlines $ prettyPrintFoot <$> feet
 
 prettyPrintFoot :: PR.Foot -> String
-prettyPrintFoot foot = unlines $ zipWith prettyPrintPhoneme [0..] foot
+prettyPrintFoot foot = unlines $ zipWith prettyPrintPhoneme [0 ..] foot
 
 prettyPrintPhoneme :: Int -> PR.Phoneme -> String
 prettyPrintPhoneme n p = replicate n '\t' ++ show p

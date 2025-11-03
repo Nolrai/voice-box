@@ -1,4 +1,5 @@
 module ProtoDoll.ParseResult where
+import Data.List.NonEmpty (NonEmpty)
 
 type Foot = [Phoneme]
 
@@ -14,7 +15,6 @@ data Place = Front | Mid | Back
 data Liminal = T0 | H2W
   deriving (Show, Eq)
 
-
 data Consonant = MkConsonant
   { manner :: Manner
   , voice  :: Voicing
@@ -22,13 +22,14 @@ data Consonant = MkConsonant
   }
   deriving (Show, Eq)
 
-data VowelName = A | E | I | O | U | Q
+data VowelName = A | E | I | O | U
   deriving (Show, Eq)
 
 data Phoneme
-  = Chord [VowelName]
+  = Chord (NonEmpty VowelName)
   | Consonant Consonant
   | Liminal Liminal
+  | NeutralVowel
   | Silence Silence
   deriving (Show, Eq)
 
