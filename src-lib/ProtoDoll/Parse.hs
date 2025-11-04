@@ -26,6 +26,7 @@ import Data.Text (Text)
 import Data.ByteString qualified as BS
 import Data.Text.Encoding (decodeUtf8')
 import Control.Exception (throwIO)
+import Data.List.NonEmpty (NonEmpty(..))
 
 type Parser = Parsec Void Text
 
@@ -78,14 +79,19 @@ parsePhoneme :: Parser Phoneme
 parsePhoneme = try parseSilence <|>
   -- hspace1 is not required here intentionally: input often omits separators.
   -- space1 would consume newlines which are significant for utterance boundaries.
-  (hspace >> (try parseVowel <|> try parseConsonant <|> parseLiminal))
+  (hspace >> (try parseVowel <|> try parseConsonant <|> parseLiminal <|> parseNeutralVowel))
+
+parseNeutralVowel :: Parser Phoneme
+parseNeutralVowel = char 'q' $> NeutralVowel
 
 -- | Parse a chord of one or more vowel letters.
 --
 -- A chord is a sequence of 'parseSingleVowel' values and is wrapped into a
 -- 'Chord' Phoneme.
 parseVowel :: Parser Phoneme
-parseVowel = Chord <$> some parseSingleVowel
+parseVowel = Chord <$> nonEmptySome parseSingleVowel
+
+nonEmptySome p = (:|) <$> p <*> many p
 
 -- | Parse a single vowel letter into a 'VowelName'.
 parseSingleVowel :: Parser VowelName
@@ -130,7 +136,7 @@ parsePlace =
 -- Recognizes "t0" and "h2w" and wraps them in the 'Liminal' Phoneme.
 parseLiminal :: Parser Phoneme
 parseLiminal =
-  Liminal <$> ((string "t0" $> T0) <|> (string "h2w" $> H2W) <|> (string "q" $> NeutralVowel))
+  Liminal <$> ((string "t0" $> T0) <|> (string "h2w" $> H2W))
 
 -- | Parse silence / boundary tokens.
 --

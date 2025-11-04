@@ -105,7 +105,11 @@ executable voice-box
     -- Other library packages from which modules are imported.
     build-depends:
         base,
-        voice-box
+        mtl >= 2.2.2,
+        lambdasound,
+        filepath,
+
+        voice-box,
 
     -- Directories containing source files.
     hs-source-dirs:   src-exe
