@@ -14,9 +14,8 @@ main = do
 
   result <- ProtoDoll.Parse.parseFile path
   putStrLn $ "Parsed " ++ show (length result) ++ " feet."
-  print $ length <$> result
-  putStr "Total phonemes: "
-  print $ sum (length <$> result)
+  putStrLn $ "Phonemes per foot: " ++ show (length <$> result)
+  putStrLn $ "Total phonemes: " ++ show (sum (length <$> result))
 
   putStrLn "Beginning synthesis..."
   let sound = feetToSound result

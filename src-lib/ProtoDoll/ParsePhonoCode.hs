@@ -15,7 +15,7 @@
 -- * Silence tokens recognized: ".\n" (utterance boundary), ". " (phrase
 --   boundary), "\n" (utterance boundary), and a gap when a stress marker
 --   follows immediately.
-module ProtoDoll.Parse where
+module ProtoDoll.ParsePhonoCode where
 
 import ProtoDoll.ParseResult
 import Text.Megaparsec
@@ -42,7 +42,7 @@ parseFile path = do
   case decodeUtf8' bs of
     Left ue -> throwIO $ userError ("invalid UTF-8 in " ++ path ++ ": " ++ show ue)
     Right content ->
-      case runParser parseText path content of
+      case runParser (parseText <* hspace <* eof) path content of
         Left err -> throwIO $ userError (errorBundlePretty err)
         Right feet -> pure feet
 
@@ -51,8 +51,7 @@ parseFile path = do
 -- Uses 'sepBy' with 'stressSep' so the separator is consistently interpreted
 -- everywhere in the parser.
 parseText :: Parser [Foot]
-parseText = do
-  sepBy parseFeet stressSep
+parseText = sepBy parseFeet stressSep
 
 -- | Top-level stress separator parser.
 --
@@ -91,6 +90,7 @@ parseNeutralVowel = char 'q' $> NeutralVowel
 parseVowel :: Parser Phoneme
 parseVowel = Chord <$> nonEmptySome parseSingleVowel
 
+nonEmptySome :: Parser a -> Parser (NonEmpty a)
 nonEmptySome p = (:|) <$> p <*> many p
 
 -- | Parse a single vowel letter into a 'VowelName'.

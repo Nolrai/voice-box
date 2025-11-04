@@ -61,7 +61,8 @@ library
     -- Modules exported by the library.
     exposed-modules:
         ProtoDoll.SynthTypes
-        ProtoDoll.Parse
+        ProtoDoll.ParseRoman
+        ProtoDoll.ParsePhonoCode
         ProtoDoll.ParseResult
         ProtoDoll.Synth
 
