@@ -1,5 +1,11 @@
-module ProtoDoll.ParseResult where
+module ProtoDoll.Parse.Types where
+
+import Data.Void (Void)
+import Data.Text (Text)
+import Text.Megaparsec (Parsec)
 import Data.List.NonEmpty (NonEmpty)
+
+type Parser = Parsec Void Text
 
 type Foot = [Phoneme]
 
@@ -16,9 +22,9 @@ data Liminal = T0 | H2W
   deriving (Show, Eq)
 
 data Consonant = MkConsonant
-  { manner :: Manner
-  , voice  :: Voicing
-  , place  :: Place
+  { manner :: Manner,
+    voice :: Voicing,
+    place :: Place
   }
   deriving (Show, Eq)
 

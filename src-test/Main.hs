@@ -1,7 +1,7 @@
 module Main (main) where
 
 import ProtoDoll.Parse qualified as PD
-import ProtoDoll.ParseResult qualified as PR
+import ProtoDoll.Parse.Types qualified as PR
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.Exit (exitFailure)
 import System.FilePath (takeDirectory)

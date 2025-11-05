@@ -61,10 +61,13 @@ library
     -- Modules exported by the library.
     exposed-modules:
         ProtoDoll.SynthTypes
-        ProtoDoll.ParseRoman
-        ProtoDoll.ParsePhonoCode
-        ProtoDoll.ParseResult
+        ProtoDoll.Parse
+        ProtoDoll.Parse.Roman
+        ProtoDoll.Parse.PhonoCode
+        ProtoDoll.Parse.Common
+        ProtoDoll.Parse.Types
         ProtoDoll.Synth
+        Utils.IO
 
     -- Modules included in this library but not exported.
     other-modules:
@@ -109,6 +112,8 @@ executable voice-box
         mtl >= 2.2.2,
         lambdasound,
         filepath,
+        process,
+        text,
 
         voice-box,
 
