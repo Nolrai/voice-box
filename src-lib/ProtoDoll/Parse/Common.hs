@@ -45,12 +45,11 @@ vowelChord :: Parser Phoneme
 vowelChord =
   Chord <$> try (nonEmptySome vowelName)
 
-
 -- stress separator: primary-stress mark or ASCII apostrophe (returns unit)
 stressSep :: Parser ()
 stressSep = (char 'ˈ' $> ()) <|> (char '\'' $> ())
 
--- non-empty some -> NonEmpty helper
+-- non-empty some, NonEmpty helper
 nonEmptySome :: Parser a -> Parser (NonEmpty a)
 nonEmptySome p = (:|) <$> p <*> many p
 

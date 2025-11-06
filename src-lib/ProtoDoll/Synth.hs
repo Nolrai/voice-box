@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module ProtoDoll.Synth (footToSound, chainSynthisis, feetToSound) where
+module ProtoDoll.Synth (footToSound, chainSynthisis, paragraphsToSound) where
 
 import Control.Monad.State.Strict (State, evalState, get, put)
 import Data.IntSet
@@ -8,14 +8,19 @@ import Data.List as List
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.List.NonEmpty qualified as NE
 import Data.Word (Word16)
-import LambdaSound hiding (I)
+import LambdaSound hiding (I, f1, f2)
 import LambdaSound qualified as Sound
 import ProtoDoll.Parse.Types hiding (I)
 import ProtoDoll.Parse.Types as PR
 import ProtoDoll.SynthTypes as ST
 
-feetToSound :: [Foot] -> Sound T Pulse
-feetToSound feet = evalState (chainSynthisis footToSound feet) A
+paragraphsToSound :: [[Foot]] -> Sound T Pulse
+paragraphsToSound paragraphs =
+  mconcat (paragraphToSound <$> paragraphs)
+
+paragraphToSound :: [Foot] -> Sound T Pulse
+paragraphToSound feet =
+  evalState (chainSynthisis footToSound feet) A >>> utteranceBoundarySound
 
 chainSynthisis :: (Monad m) => (a -> m (Sound T Pulse)) -> [a] -> m (Sound T Pulse)
 chainSynthisis f = List.foldr (\p -> (<*>) ((>>>) <$> f p)) (pure (0 |-> silence))
@@ -23,12 +28,13 @@ chainSynthisis f = List.foldr (\p -> (<*>) ((>>>) <$> f p)) (pure (0 |-> silence
 footToSound :: Foot -> State VowelName (Sound T Pulse)
 footToSound = chainSynthisis (fmap toSound . phonemeToRealization)
 
+-- realistic-ish formant centres (Hz) for each vowel
 vowelToFormants :: VowelName -> IntSet
-vowelToFormants A = fromList [220, 440, 660]
-vowelToFormants E = fromList [330, 660, 990]
-vowelToFormants I = fromList [440, 880, 1320]
-vowelToFormants O = fromList [260, 520, 780]
-vowelToFormants U = fromList [300, 600, 900]
+vowelToFormants A = fromList [730, 1090, 2440]  -- as in "father"
+vowelToFormants E = fromList [530, 1840, 2480]  -- as in "bed"
+vowelToFormants I = fromList [270, 2290, 3010]  -- as in "see"
+vowelToFormants O = fromList [570, 840, 2410]   -- as in "ought"
+vowelToFormants U = fromList [300, 870, 2240]   -- as in "boot"
 
 phonemeToRealization :: Phoneme -> State VowelName Realization
 phonemeToRealization (Chord v) = do
@@ -179,7 +185,7 @@ fitADSR totalTicks ADSR {..} =
       scale = if sumTicks == 0 then 0 else fromIntegral totalTicks / fromIntegral sumTicks
       scaleField :: Word16 -> Word16
       scaleField t = round (fromIntegral t * scale)
-   in ADSR
+  in ADSR
         { attackTime = scaleField attackTime,
           decayTime = scaleField decayTime,
           sustainTime = scaleField sustainTime,
@@ -192,34 +198,71 @@ overlay continuous timed =
   parallel2 (adoptDuration timed continuous) timed
 
 intToHz :: Int -> Hz
-intToHz = Hz . fromIntegral
+intToHz n = Hz (fromIntegral n)
 
-mkTone :: Int -> Sound Sound.I Pulse
-mkTone f = triangleWave (intToHz f)
-
-mkChord :: IntSet -> Sound Sound.I Pulse
-mkChord tones = parallel $ mkTone <$> toList tones
+-- build a band-limited pulsetrain at f0 by summing harmonics with 1/n rolloff
+bandLimitedPulse :: Hz -> Sound Sound.I Pulse
+bandLimitedPulse = harmonic sineWave
 
 -- Pass the phoneme duration (ticks) down into the raw generator so envelopes
 -- can be fitted to the phoneme duration reliably.
 toSound :: Realization -> Sound Sound.T Pulse
 toSound r0 =
   let r = ensureADSRFits r0
-   in case form r of
+  in case form r of
         Tones {..} ->
-          ticksToDuration (dur r)
-            |-> parallel
-              [ cutAfter (1 / 3) $ mkChord start,
-                mkChord middle,
-                cutBefore (2 / 3) $ mkChord end
-              ]
+          -- voiced excitation passed through formant bandpass filters
+          let f0 :: Hz
+              -- default fundamental; later you can make this part of Realization
+              f0 = Hz 110
+
+              -- narrow-ish Q for formant bandpasses
+              qForm = 6.0
+
+              -- build a bandpassed version of the voiced source for a given formant set
+              formantBand :: IntSet -> Sound Sound.I Pulse
+              formantBand tones =
+                let excitation = bandLimitedPulse f0 -- basic periodic source
+                    mkBand fc =
+                      let bp = applyIIRFilter (bandPassFilter (intToHz fc) qForm) excitation
+                      in amplify 1 bp
+                in parallel (mkBand <$> toList tones)
+
+              -- progress window helpers: produce three windows that sum to 1
+              time1, time2 :: Float
+              time1 = 1 / 3
+              time2 = 2 / 3
+
+              startWindow :: Float -> Float
+              startWindow p =
+                if p <= time1 then max 0 (1 - 3 * p) else 0
+
+              coreWindow :: Float -> Float
+              coreWindow p
+                | p <= time1 = 3 * p
+                | p <= time2 = 1
+                | otherwise = max 0 (3 * (1 - p))
+
+              endWindow :: Float -> Float
+              endWindow p = if p >= time2 then max 0 (3 * p - 2) else 0
+
+              -- apply an arbitrary float window (function of normalized progress in [0..1]) to a sound
+              applyWindow :: (Float -> Float) -> Sound Sound.I Pulse -> Sound Sound.I Pulse
+              applyWindow w =
+                zipSoundWith (\p x -> x * realToFrac (w (realToFrac p))) progress
+
+              -- bandpassed + windowed segments
+              startBand = applyWindow startWindow (formantBand start)
+              coreBand  = applyWindow coreWindow  (formantBand middle) -- core runs whole duration but windowed
+              endBand   = applyWindow endWindow   (formantBand end)
+          in ticksToDuration (dur r) |-> parallel [startBand, coreBand, endBand]
         Noise {..} ->
           let subtone = amplify noiseSubharmonic $ triangleWave 250
               baseNoise = noise seed
               coloredNoise = tintNoise noiseFilter baseNoise
               shapedNoise = applyASDR (dur r) noiseEnvelope coloredNoise
               mainPart = simpleReverb (ticksToDuration noiseReverb) shapedNoise
-           in subtone `overlay` mainPart
+          in subtone `overlay` mainPart
         ST.Silence -> ticksToDuration (dur r) |-> silence
 
 seed :: Int
@@ -241,7 +284,7 @@ applyASDR totalTicks ADSR {..} inputSound =
             sustain = realToFrac sustainLevel,
             release = ticksToDuration releaseTime
           }
-   in applyEnvelope env timedInput
+  in applyEnvelope env timedInput
 
 tintNoise :: Float -> Sound Sound.I Pulse -> Sound Sound.I Pulse
 tintNoise alpha inputNoise =
@@ -265,7 +308,7 @@ tintNoise alpha inputNoise =
       -- build each weighted band
       mkBand f w =
         let bp = applyIIRFilter (bandPassFilter (Hz f) qForm) inputNoise
-         in amplify (realToFrac w) bp
+        in amplify (realToFrac w) bp
 
       bands = zipWith mkBand centers weights
 
@@ -273,13 +316,16 @@ tintNoise alpha inputNoise =
       -- map alpha in [0..2] -> lp cutoff in [8000 .. 1000] Hz (tighter for browner noise)
       (lpCutHz :: Float) = realToFrac $ 8000.0 * (1.0 - (alphaD / 2.0)) + 1000.0 * (alphaD / 2.0)
       base = applyIIRFilter (lowPassFilter (Hz lpCutHz) 0.9) inputNoise
-   in parallel (base : bands)
+  in parallel (base : bands)
 
 cutAfter :: Progress -> Sound Sound.I Pulse -> Sound Sound.I Pulse
 cutAfter threshold = zipSoundWith (\p x -> if p <= threshold then x else 0) progress
 
 cutBefore :: Progress -> Sound Sound.I Pulse -> Sound Sound.I Pulse
 cutBefore threshold = zipSoundWith (\p x -> if p >= threshold then x else 0) progress
+
+utteranceBoundarySound :: Sound T Pulse
+utteranceBoundarySound = toSound (silenceToRealization UtteranceBoundary)
 
 silenceToRealization :: Silence -> Realization
 silenceToRealization x =

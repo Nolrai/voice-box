@@ -1,8 +1,15 @@
 module Main where
 
 import ProtoDoll.Parse
+import ProtoDoll.Synth
 import System.Environment (getArgs)
 import System.Exit (exitSuccess)
+import LambdaSound
+import System.FilePath (dropExtension, (<.>))
+import GHC.IO.StdHandles (stderr)
+import System.IO (hPrint)
+import Utils.IO (writeFileUtf8)
+import qualified Data.Text as Text
 
 main :: IO ()
 main = do
@@ -31,13 +38,16 @@ processFile path = do
   let totalPhonemes = sum (fmap sum utterancePhonemes)
   putStrLn $ "Total phonemes: " ++ show totalPhonemes
 
-  -- putStrLn "Beginning synthesis..."
-  -- let sound = feetToSound result
-  -- let soundFile = dropExtension path <.> "wav"
-  -- putStrLn $ "Saving " <> soundFile <> " ..."
-  -- saveWav soundFile (Hz 44100) sound
+  -- Debug: print the parsed result to stderr
+  writeFileUtf8 (path <.> "debug") (Text.show result)
 
-  -- putStrLn "Playng sound."
+  putStrLn "Beginning synthesis..."
+  let sound = paragraphsToSound result
+  let soundFile = dropExtension path <.> "wav"
+  putStrLn $ "Saving " <> soundFile <> " ..."
+  saveWav soundFile (Hz 44100) sound
+
+  -- putStrLn "Playing sound."
   -- play 44100 1.0 sound
 
   exitSuccess
