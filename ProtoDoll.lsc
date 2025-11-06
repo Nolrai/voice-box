@@ -1,0 +1,69 @@
+# ---- Consonants Symbols ----
+# Plosives (p-)
+Symbol p1w, p1b, p1n
+Symbol p2w, p2b, p2n
+Symbol p3w, p3b, p3n
+
+# Fricatives (s-)
+Symbol s1w, s1b, s1n
+Symbol s2w, s2b, s2n
+Symbol s3w, s3b, s3n
+
+# Affricates (c-)
+Symbol c1w, c1b, c1n
+Symbol c2w, c2b, c2n
+Symbol c3w, c3b, c3n
+
+# Liminals
+Symbol t0 # (tap / colorless)
+Symbol h2w # (breathy / release noise)
+
+# q - extra-short neutral ("colorless") vowel.
+class vowel {a, i, e, o, u, q}
+class plosive {p1w, p1b, p1n, p2w, p2b, p2n, p3w, p3b, p3n}
+class fricative {s1w, s1b, s1n, s2w, s2b, s2n, s3w, s3b, s3n}
+class affricate {c1w, c1b, c1n, c2w, c2b, c2n, c3w, c3b, c3n}
+class consonant {@plosive, @fricative, @affricate}
+class liminal {t0, h2w}
+
+# gloss
+class gloss {A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,Æ}
+
+romanizer:
+# ---- Cleanup & projection rules (optional human-friendly projection) ----
+# Map internal codes to outward Latin pair (presentation layer)
+  p1w => p
+  p1b => b
+  p1n => m
+  p2w => t
+  p2b => d
+  p2n => n
+  p3w => k
+  p3b => g
+  p3n => ng
+
+  s1w => f
+  s1b => v
+  s2w => s
+  s2b => z
+  s3w => sh
+  s3b => zh
+
+  c1w => pf
+  c1b => bv
+  c2w => ts
+  c2b => dz
+  c3w => ch
+  c3b => jz
+
+  t0 => ?
+  h2w => h
+
+# vowel-chord projections
+  ie => y
+  uo => w
+  ea => l
+  aq => l
+  qq => l
+  iq => r
+  q => ə
