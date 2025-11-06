@@ -7,7 +7,7 @@ import qualified ProtoDoll.Parse.PhonoCode as Phono
 import qualified ProtoDoll.Parse.Roman as Roman
 
 import Control.Monad.Except
-import Text.Megaparsec (runParser, errorBundlePretty, eof)
+import Text.Megaparsec (runParser, eof)
 import Text.Megaparsec.Char (hspace)
 import Data.ByteString qualified as BS
 import Data.Text.Encoding (decodeUtf8')

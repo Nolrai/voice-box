@@ -20,7 +20,7 @@ name:               voice-box
 -- PVP summary:     +-+------- breaking API changes
 --                  | | +----- non-breaking API additions
 --                  | | | +--- code changes with no API change
-version:            0.1.0.0
+version:            0.2.0.0
 
 -- A short (one-line) description of the package.
 -- synopsis:
@@ -101,7 +101,8 @@ executable voice-box
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    -- other-modules:
+    other-modules:
+        Paths_voice_box
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:

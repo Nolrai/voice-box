@@ -6,20 +6,24 @@ import System.Environment (getArgs)
 import System.Exit (exitSuccess)
 import LambdaSound
 import System.FilePath (dropExtension, (<.>))
-import GHC.IO.StdHandles (stderr)
-import System.IO (hPrint)
 import Utils.IO (writeFileUtf8)
 import qualified Data.Text as Text
+import Paths_voice_box
 
 main :: IO ()
 main = do
   putStrLn "Hello, Haskell!"
   args <- getArgs
-  case args of
-    [path] -> processFile path
-    _ -> do
-      print =<< getArgs
-      putStrLn "Usage: voice-box <input-file>"
+  if "--version" `elem` args
+    then printVersion
+    else case args of
+      [path] -> processFile path
+      _ -> do
+        print =<< getArgs
+        putStrLn "Usage: voice-box <input-file>"
+
+printVersion :: IO ()
+printVersion = putStrLn $ "voice-box version" <> show version
 
 processFile :: FilePath -> IO ()
 processFile path = do

@@ -318,12 +318,6 @@ tintNoise alpha inputNoise =
       base = applyIIRFilter (lowPassFilter (Hz lpCutHz) 0.9) inputNoise
   in parallel (base : bands)
 
-cutAfter :: Progress -> Sound Sound.I Pulse -> Sound Sound.I Pulse
-cutAfter threshold = zipSoundWith (\p x -> if p <= threshold then x else 0) progress
-
-cutBefore :: Progress -> Sound Sound.I Pulse -> Sound Sound.I Pulse
-cutBefore threshold = zipSoundWith (\p x -> if p >= threshold then x else 0) progress
-
 utteranceBoundarySound :: Sound T Pulse
 utteranceBoundarySound = toSound (silenceToRealization UtteranceBoundary)
 

@@ -20,7 +20,7 @@ import Data.Semigroup ((<>))
 import Data.Text (Text)
 import Data.Text qualified as T
 import GHC.Show (Show (..))
-import System.IO (IO, putStrLn, FilePath)
+import System.IO (IO, FilePath)
 import Control.Category ((.))
 import qualified Data.ByteString as BS
 import Data.Text.Encoding (decodeUtf8', encodeUtf8)
