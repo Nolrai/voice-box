@@ -1,9 +1,9 @@
 module Voice.IPA.Types where
 
-import Data.Void (Void)
-import Data.Text (Text)
-import Text.Megaparsec (Parsec)
 import Data.List.NonEmpty (NonEmpty)
+import Data.Text (Text)
+import Data.Void (Void)
+import Text.Megaparsec (Parsec)
 
 type Parser = Parsec Void Text
 

@@ -2,19 +2,18 @@
 
 module Voice.IPA (parseFile) where
 
-import Voice.IPA.Types
-import qualified Voice.IPA.PhonoCode as Phono
-import qualified Voice.IPA.Roman as Roman
-
-import Control.Monad.Except
-import Text.Megaparsec (runParser, eof)
-import Text.Megaparsec.Char (hspace)
-import Data.ByteString qualified as BS
-import Data.Text.Encoding (decodeUtf8')
 import Control.Exception (throwIO)
+import Control.Monad.Except
+import Data.ByteString qualified as BS
 import Data.Text (Text)
-import Text.Megaparsec.Error
+import Data.Text.Encoding (decodeUtf8')
 import Data.Void (Void)
+import Text.Megaparsec (eof, runParser)
+import Text.Megaparsec.Char (hspace)
+import Text.Megaparsec.Error
+import Voice.IPA.PhonoCode qualified as Phono
+import Voice.IPA.Roman qualified as Roman
+import Voice.IPA.Types
 
 -- | Run an ExceptT computation and throw a user-error on failure.
 liftToUserError :: ExceptT String IO a -> IO a
@@ -36,10 +35,12 @@ wrapEither context action = case action of
 -- (<||>) = orElse
 
 orElseCombine :: ExceptT String IO a -> ExceptT String IO a -> ExceptT String IO a
-orElseCombine left right = left `catchError` \e1 ->
-  right `catchError` \e2 -> throwError (e1 ++ "\n" ++ e2)
+orElseCombine left right =
+  left `catchError` \e1 ->
+    right `catchError` \e2 -> throwError (e1 ++ "\n" ++ e2)
 
 infixr 1 <|||>
+
 (<|||>) :: ExceptT String IO a -> ExceptT String IO a -> ExceptT String IO a
 (<|||>) = orElseCombine
 
@@ -57,7 +58,7 @@ parseFile path = do
 tryParse :: String -> FilePath -> Parser a -> Text -> ExceptT String IO a
 tryParse context filePath p txt =
   let parseAction = runParser (p <* hspace <* eof) filePath txt
-  in wrapParser context parseAction
+   in wrapParser context parseAction
 
 wrapParser :: String -> Either (ParseErrorBundle Text Void) a -> ExceptT String IO a
 wrapParser context (Left err) = throwError (context ++ ": " ++ errorBundlePretty err)

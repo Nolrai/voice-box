@@ -30,11 +30,11 @@ footToSound = chainSynthisis (fmap toSound . phonemeToRealization)
 
 -- realistic-ish formant centres (Hz) for each vowel
 vowelToFormants :: VowelName -> IntSet
-vowelToFormants A = fromList [730, 1090, 2440]  -- as in "father"
-vowelToFormants E = fromList [530, 1840, 2480]  -- as in "bed"
-vowelToFormants I = fromList [270, 2290, 3010]  -- as in "see"
-vowelToFormants O = fromList [570, 840, 2410]   -- as in "ought"
-vowelToFormants U = fromList [300, 870, 2240]   -- as in "boot"
+vowelToFormants A = fromList [730, 1090, 2440] -- as in "father"
+vowelToFormants E = fromList [530, 1840, 2480] -- as in "bed"
+vowelToFormants I = fromList [270, 2290, 3010] -- as in "see"
+vowelToFormants O = fromList [570, 840, 2410] -- as in "ought"
+vowelToFormants U = fromList [300, 870, 2240] -- as in "boot"
 
 phonemeToRealization :: Phoneme -> State VowelName Realization
 phonemeToRealization (Chord v) = do
@@ -185,7 +185,7 @@ fitADSR totalTicks ADSR {..} =
       scale = if sumTicks == 0 then 0 else fromIntegral totalTicks / fromIntegral sumTicks
       scaleField :: Word16 -> Word16
       scaleField t = round (fromIntegral t * scale)
-  in ADSR
+   in ADSR
         { attackTime = scaleField attackTime,
           decayTime = scaleField decayTime,
           sustainTime = scaleField sustainTime,
@@ -209,7 +209,7 @@ bandLimitedPulse = harmonic sineWave
 toSound :: Realization -> Sound Sound.T Pulse
 toSound r0 =
   let r = ensureADSRFits r0
-  in case form r of
+   in case form r of
         Tones {..} ->
           -- voiced excitation passed through formant bandpass filters
           let f0 :: Hz
@@ -225,8 +225,8 @@ toSound r0 =
                 let excitation = bandLimitedPulse f0 -- basic periodic source
                     mkBand fc =
                       let bp = applyIIRFilter (bandPassFilter (intToHz fc) qForm) excitation
-                      in amplify 1 bp
-                in parallel (mkBand <$> toList tones)
+                       in amplify 1 bp
+                 in parallel (mkBand <$> toList tones)
 
               -- progress window helpers: produce three windows that sum to 1
               time1, time2 :: Float
@@ -253,16 +253,16 @@ toSound r0 =
 
               -- bandpassed + windowed segments
               startBand = applyWindow startWindow (formantBand start)
-              coreBand  = applyWindow coreWindow  (formantBand middle) -- core runs whole duration but windowed
-              endBand   = applyWindow endWindow   (formantBand end)
-          in ticksToDuration (dur r) |-> parallel [startBand, coreBand, endBand]
+              coreBand = applyWindow coreWindow (formantBand middle) -- core runs whole duration but windowed
+              endBand = applyWindow endWindow (formantBand end)
+           in ticksToDuration (dur r) |-> parallel [startBand, coreBand, endBand]
         Noise {..} ->
           let subtone = amplify noiseSubharmonic $ triangleWave 250
               baseNoise = noise seed
               coloredNoise = tintNoise noiseFilter baseNoise
               shapedNoise = applyASDR (dur r) noiseEnvelope coloredNoise
               mainPart = simpleReverb (ticksToDuration noiseReverb) shapedNoise
-          in subtone `overlay` mainPart
+           in subtone `overlay` mainPart
         ST.Silence -> ticksToDuration (dur r) |-> silence
 
 seed :: Int
@@ -284,7 +284,7 @@ applyASDR totalTicks ADSR {..} inputSound =
             sustain = realToFrac sustainLevel,
             release = ticksToDuration releaseTime
           }
-  in applyEnvelope env timedInput
+   in applyEnvelope env timedInput
 
 tintNoise :: Float -> Sound Sound.I Pulse -> Sound Sound.I Pulse
 tintNoise alpha inputNoise =
@@ -308,7 +308,7 @@ tintNoise alpha inputNoise =
       -- build each weighted band
       mkBand f w =
         let bp = applyIIRFilter (bandPassFilter (Hz f) qForm) inputNoise
-        in amplify (realToFrac w) bp
+         in amplify (realToFrac w) bp
 
       bands = zipWith mkBand centers weights
 
@@ -316,7 +316,7 @@ tintNoise alpha inputNoise =
       -- map alpha in [0..2] -> lp cutoff in [8000 .. 1000] Hz (tighter for browner noise)
       (lpCutHz :: Float) = realToFrac $ 8000.0 * (1.0 - (alphaD / 2.0)) + 1000.0 * (alphaD / 2.0)
       base = applyIIRFilter (lowPassFilter (Hz lpCutHz) 0.9) inputNoise
-  in parallel (base : bands)
+   in parallel (base : bands)
 
 utteranceBoundarySound :: Sound T Pulse
 utteranceBoundarySound = toSound (silenceToRealization UtteranceBoundary)

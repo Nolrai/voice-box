@@ -1,10 +1,10 @@
 module Main (main) where
 
-import Voice.IPA qualified as PD
-import Voice.IPA.Types qualified as PR
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.Exit (exitFailure)
 import System.FilePath (takeDirectory)
+import Voice.IPA qualified as PD
+import Voice.IPA.Types qualified as PR
 
 -- Golden test:
 -- - reads test input at ../story_predoll-0.txt (project root)

@@ -10,23 +10,23 @@ module Voice.Util
   ( annotateIO,
     errorIO,
     readFileUtf8,
-    writeFileUtf8
+    writeFileUtf8,
   )
 where
 
+import Control.Applicative (pure)
+import Control.Category ((.))
 import Control.Exception (Exception, SomeException, catch, displayException, throwIO)
+import Data.ByteString qualified as BS
+import Data.Either (Either (..))
 import Data.Function (($))
 import Data.Semigroup ((<>))
 import Data.Text (Text)
 import Data.Text qualified as T
-import GHC.Show (Show (..))
-import System.IO (IO, FilePath)
-import Control.Category ((.))
-import qualified Data.ByteString as BS
 import Data.Text.Encoding (decodeUtf8', encodeUtf8)
 import GHC.IO.Exception (userError)
-import Data.Either (Either(..))
-import Control.Applicative (pure)
+import GHC.Show (Show (..))
+import System.IO (FilePath, IO)
 
 -- | Wrapper exception carrying additional textual context and the original exception.
 -- |
@@ -77,7 +77,7 @@ readFileUtf8 fp = do
   bs <- BS.readFile fp
   case decodeUtf8' bs of
     Left err -> throwIO (userError $ "Invalid UTF-8 in " <> fp <> ": " <> show err)
-    Right t  -> pure t
+    Right t -> pure t
 
 writeFileUtf8 :: FilePath -> Text -> IO ()
 writeFileUtf8 fp txt = BS.writeFile fp (encodeUtf8 txt)

@@ -3,14 +3,13 @@
 module Voice.IPA.PhonoCode where
 
 import Control.Exception (throwIO)
-import qualified Data.ByteString as BS
+import Data.ByteString qualified as BS
 import Data.Functor (($>))
 import Data.Text.Encoding (decodeUtf8')
-import Voice.IPA.Types
 import Text.Megaparsec
 import Text.Megaparsec.Char
-
-import qualified Voice.IPA.Common as C
+import Voice.IPA.Common qualified as C
+import Voice.IPA.Types
 
 -- | Read and parse a file containing ProtoDoll text.
 --

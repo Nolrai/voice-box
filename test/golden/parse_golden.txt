@@ -1,65 +1,2121 @@
-Chord [A,I]
+Chord (A :| [I])
 	Silence Gap
 
 Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
-	Chord [Q]
+	NeutralVowel
 		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
-			Chord [Q]
+			NeutralVowel
 				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
 					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
 						Silence Gap
 
 Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
-	Chord [O,U]
+	Chord (O :| [U])
 		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
-			Chord [Q]
+			NeutralVowel
 				Consonant (MkConsonant {manner = S, voice = White, place = Mid})
-					Chord [A,I]
-						Chord [U,O,Q]
-							Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
-								Chord [Q]
+					Chord (A :| [I])
+						Chord (U :| [O])
+							NeutralVowel
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+									NeutralVowel
 
-Chord [U,O,E,I]
+Chord (U :| [O,E,I])
 	Consonant (MkConsonant {manner = P, voice = White, place = Back})
-		Chord [Q]
+		NeutralVowel
 			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
 
 Consonant (MkConsonant {manner = P, voice = White, place = Mid})
-	Chord [Q,A,Q]
-		Chord [A,Q,O]
-			Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
-				Silence Gap
+	NeutralVowel
+		Chord (E :| [A])
+			Chord (E :| [A,O])
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+					Silence Gap
 
-Chord [A]
+Chord (A :| [])
 	Consonant (MkConsonant {manner = S, voice = White, place = Front})
 		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
-			Chord [Q,I,Q]
-				Chord [A,I]
+			NeutralVowel
+				Chord (I :| [A])
+					Chord (A :| [I])
+						Liminal H2W
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+									Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	Chord (O :| [E,A])
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				Chord (A :| [O])
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						NeutralVowel
+							Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									NeutralVowel
+										Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+							Silence PhraseBoundary
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = S, voice = White, place = Front})
+											NeutralVowel
+												Chord (I :| [A])
+													Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+														Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+															Consonant (MkConsonant {manner = S, voice = White, place = Front})
+																NeutralVowel
+																	Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+																		Chord (A :| [I])
+																			Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	Chord (O :| [U])
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Chord (U :| [O])
+							NeutralVowel
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+									Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+										NeutralVowel
+											Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+												NeutralVowel
+													Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	Consonant (MkConsonant {manner = P, voice = White, place = Back})
+		Chord (I :| [A,A])
+			Consonant (MkConsonant {manner = C, voice = White, place = Back})
+				NeutralVowel
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+						Chord (O :| [])
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+									Chord (A :| [I])
+										Consonant (MkConsonant {manner = S, voice = White, place = Front})
+											Chord (E :| [I])
+												Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+															Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																Liminal H2W
+																	Chord (A :| [])
+																		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																			Consonant (MkConsonant {manner = C, voice = Brown, place = Mid})
+																				Consonant (MkConsonant {manner = S, voice = White, place = Front})
+																					Chord (I :| [A])
+																						NeutralVowel
+																							Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																								Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	Chord (O :| [E,A])
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+				Consonant (MkConsonant {manner = S, voice = White, place = Front})
+					Chord (I :| [A,U])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+									Chord (E :| [A,A])
+										Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+											Silence PhraseBoundary
+												Chord (A :| [I])
+													Silence Gap
+
+Chord (U :| [O,O])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						NeutralVowel
+							Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+									Chord (E :| [I])
+										NeutralVowel
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+												Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+													NeutralVowel
+														Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+							Silence Gap
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+										Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+											Chord (A :| [I])
+												Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+													Chord (U :| [])
+														Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Consonant (MkConsonant {manner = P, voice = White, place = Back})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+											Chord (U :| [O])
+												NeutralVowel
+													Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+														Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+															Chord (I :| [])
+																NeutralVowel
+																	Consonant (MkConsonant {manner = P, voice = White, place = Front})
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			Chord (U :| [O])
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+							Chord (E :| [I])
+								Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+									Chord (O :| [])
+										Liminal H2W
+											Chord (A :| [O])
+												Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	NeutralVowel
+		Chord (I :| [A])
+			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+				Chord (I :| [])
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						NeutralVowel
+							Chord (I :| [A,U])
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+									Chord (U :| [O,A])
+										Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+											Silence Gap
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+															Chord (A :| [I])
+																Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Chord (O :| [U])
+								Liminal H2W
+									Chord (A :| [O])
+										Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+											NeutralVowel
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+													Chord (I :| [A,I])
+														Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+															Chord (I :| [E])
+																NeutralVowel
+																	Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																		Silence Gap
+																			Chord (E :| [A])
+																				NeutralVowel
+																					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																						NeutralVowel
+
+Chord (E :| [A,O,U])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Chord (I :| [E])
+			NeutralVowel
+				Chord (E :| [A])
+					Silence PhraseBoundary
+						Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+							Chord (O :| [U])
+								Chord (A :| [I])
+									Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+										Chord (I :| [A,A,I])
+											Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = White, place = Back})
+															Chord (E :| [A,I])
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																	Chord (A :| [])
+																		Consonant (MkConsonant {manner = P, voice = White, place = Front})
+																			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																				NeutralVowel
+																					Chord (I :| [A,U])
+																						Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																							Chord (O :| [E,A])
+																								Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+																									Chord (A :| [I])
+																										Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																											Chord (A :| [I])
+																												Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																													NeutralVowel
+																														Chord (E :| [A])
+																															Consonant (MkConsonant {manner = S, voice = White, place = Front})
+																																Silence UtteranceBoundary
+																																	NeutralVowel
+																																		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																																			Chord (U :| [O])
+																																				NeutralVowel
+																																					Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+																																						Silence Gap
+
+Chord (O :| [U])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Chord (E :| [A,I])
+			Chord (U :| [O])
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+						Chord (A :| [I])
+							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+								Chord (I :| [A,A,I])
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+											NeutralVowel
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+															Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																Chord (I :| [])
+																	Silence Gap
+
+Chord (A :| [])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+		NeutralVowel
+			Chord (I :| [A])
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					Chord (O :| [E,A])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = White, place = Back})
+										Chord (E :| [A,I])
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+												Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+															Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																NeutralVowel
+																	Chord (E :| [A])
+																		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																			Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+																				Chord (A :| [])
+																					Consonant (MkConsonant {manner = P, voice = White, place = Front})
+																						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																							NeutralVowel
+																								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																									Chord (A :| [I])
+																										Silence Gap
+
+Chord (I :| [A,I])
+	NeutralVowel
+		Chord (E :| [A,A,I])
+			Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						NeutralVowel
+							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									Chord (I :| [])
+										Silence Gap
+
+Chord (A :| [])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+		NeutralVowel
+			Chord (I :| [A])
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					Chord (O :| [E,A])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+							Silence Gap
+
+Chord (U :| [O])
+	NeutralVowel
+		Chord (I :| [A])
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						NeutralVowel
+
+Chord (U :| [O,E,I])
+	Consonant (MkConsonant {manner = P, voice = White, place = Back})
+		Silence PhraseBoundary
+			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+				Chord (E :| [I])
+					Silence Gap
+
+Chord (U :| [O])
+	NeutralVowel
+		Chord (I :| [A])
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Silence Gap
+
+Chord (I :| [])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	Chord (I :| [A,I])
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+					Silence PhraseBoundary
+						Chord (A :| [I])
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+								Chord (U :| [])
+									Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+										NeutralVowel
+											Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+												Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					Silence Gap
+
+Chord (U :| [O,O])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+						Chord (I :| [])
+							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+										Chord (I :| [])
+											NeutralVowel
+
+Chord (U :| [O,E,I])
+	Consonant (MkConsonant {manner = P, voice = White, place = Back})
+		Chord (U :| [O])
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = S, voice = White, place = Back})
+						Chord (I :| [])
+							Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Front})
+	Chord (E :| [I])
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+							Chord (I :| [])
+								Chord (U :| [O])
+									NeutralVowel
+										Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+											Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+												NeutralVowel
+													Chord (I :| [A])
+														NeutralVowel
+															Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																NeutralVowel
+																	Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+																		Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																				NeutralVowel
+																					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																						Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Consonant (MkConsonant {manner = S, voice = White, place = Front})
+							Chord (E :| [I])
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+									Silence Gap
+										Consonant (MkConsonant {manner = S, voice = White, place = Back})
+											Chord (I :| [])
+												Chord (U :| [O])
+													NeutralVowel
+														Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+															Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																Chord (O :| [U])
+																	Silence Gap
+
+Liminal H2W
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = P, voice = White, place = Front})
+			Chord (I :| [])
+				Chord (U :| [O])
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Chord (A :| [I])
+								Liminal H2W
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+											Consonant (MkConsonant {manner = S, voice = White, place = Front})
+												NeutralVowel
+													Chord (I :| [A])
+														Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+															Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																	Chord (U :| [])
+																		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																			Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																				Silence Gap
+																					Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+																						NeutralVowel
+																							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																									NeutralVowel
+																										Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																											Consonant (MkConsonant {manner = S, voice = White, place = Back})
+																												Chord (I :| [])
+																													Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+																														Chord (I :| [A,U])
+																															NeutralVowel
+																																Consonant (MkConsonant {manner = P, voice = White, place = Front})
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			Chord (U :| [O])
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+						Chord (A :| [I])
+							Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+							Chord (U :| [])
+								Chord (E :| [])
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+										Chord (I :| [])
+											Consonant (MkConsonant {manner = S, voice = White, place = Front})
+												NeutralVowel
+													Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+														NeutralVowel
+															Chord (E :| [A])
+																Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																	Silence UtteranceBoundary
+																		Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+																			Chord (A :| [])
+																				Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																						NeutralVowel
+																							Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																								Chord (A :| [I])
+																									Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Consonant (MkConsonant {manner = S, voice = White, place = Front})
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+									Consonant (MkConsonant {manner = P, voice = White, place = Back})
+										NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+	Chord (A :| [O])
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+					Silence Gap
+						Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+										Chord (A :| [O])
+											Chord (A :| [I])
+												Silence Gap
+
+Chord (U :| [O,A])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Chord (I :| [A])
+					NeutralVowel
+						Consonant (MkConsonant {manner = S, voice = White, place = Front})
+							Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+								Chord (I :| [])
+									Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+										Consonant (MkConsonant {manner = S, voice = White, place = Front})
+											Chord (O :| [])
+												Consonant (MkConsonant {manner = C, voice = White, place = Mid})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+															Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+			NeutralVowel
+				Chord (I :| [A,I])
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+						Chord (U :| [O])
+							NeutralVowel
+								Chord (I :| [A])
+									Silence Gap
+
+Chord (I :| [A])
+	NeutralVowel
+		Chord (E :| [A,I])
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+				Chord (A :| [I])
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+						Chord (O :| [I,A])
+							NeutralVowel
+								Consonant (MkConsonant {manner = S, voice = White, place = Front})
+									Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+										Chord (E :| [I])
+											Chord (U :| [O])
+												NeutralVowel
+													Chord (I :| [A])
+														Liminal H2W
+															NeutralVowel
+																Chord (I :| [A])
+																	Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+																		Silence Gap
+																			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																				Chord (A :| [])
+																					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																						Consonant (MkConsonant {manner = S, voice = White, place = Back})
+																							Chord (I :| [])
+																								Liminal H2W
+																									NeutralVowel
+																										Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																											Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+			Liminal H2W
+				Chord (A :| [O])
+					Silence Gap
+
+Chord (I :| [A])
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Chord (E :| [])
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+										Chord (I :| [])
+											Silence Gap
+												Chord (E :| [A,A,I])
+													Consonant (MkConsonant {manner = P, voice = White, place = Back})
+														Chord (A :| [I])
+															Chord (I :| [A,O,U])
+																Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																	Silence Gap
+
+Chord (A :| [O])
+	NeutralVowel
+		Chord (I :| [A])
+			Silence Gap
+
+Chord (E :| [A,A])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+			Chord (U :| [O])
+				NeutralVowel
+					Consonant (MkConsonant {manner = C, voice = Brown, place = Back})
+						Chord (E :| [])
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+									NeutralVowel
+										Chord (I :| [E,U])
+											Silence UtteranceBoundary
+												Chord (A :| [I])
+													Chord (E :| [A,U])
+														Consonant (MkConsonant {manner = P, voice = White, place = Back})
+															NeutralVowel
+
+Chord (I :| [A,A,O])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						NeutralVowel
+							Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	NeutralVowel
+		Chord (I :| [A])
+			Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+				NeutralVowel
+					Chord (I :| [A,I])
+						Silence Gap
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										Chord (E :| [])
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+													NeutralVowel
+														Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+															NeutralVowel
+																Silence Gap
+
+Liminal H2W
+	Chord (O :| [E,A,U,O,E,I])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+					Chord (E :| [A,I])
+						Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+							Chord (E :| [])
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+									Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+										NeutralVowel
+											Chord (U :| [O,I,I,A])
+												Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+													Chord (I :| [])
+														NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (U :| [O])
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = White, place = Front})
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+								Chord (A :| [I])
+									Chord (I :| [E,U])
+										Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+											Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+															Chord (E :| [I])
+																Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																		NeutralVowel
+																			Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+			Consonant (MkConsonant {manner = P, voice = White, place = Back})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+						NeutralVowel
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+								Consonant (MkConsonant {manner = P, voice = White, place = Back})
+									Chord (U :| [O,A])
+										Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+											Silence PhraseBoundary
+												NeutralVowel
+													Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+														Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	Chord (I :| [])
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						NeutralVowel
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+								Chord (I :| [])
+									Consonant (MkConsonant {manner = P, voice = White, place = Back})
+										Chord (E :| [A,O,U])
+											Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+													Chord (A :| [I])
+														Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+															Chord (O :| [U])
+																Chord (A :| [I])
+																	Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																		NeutralVowel
+																			Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																				Chord (I :| [A])
+																					NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = White, place = Front})
+	Chord (I :| [I,A])
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+
+Consonant (MkConsonant {manner = P, voice = White, place = Front})
+	Chord (I :| [A,U])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+				Chord (A :| [I])
+					Silence Gap
+
+Consonant (MkConsonant {manner = C, voice = White, place = Back})
+	NeutralVowel
+		Chord (E :| [A])
+			Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+				Chord (I :| [A])
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Silence Gap
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+											NeutralVowel
+												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+													Chord (U :| [O])
+														NeutralVowel
+															Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+																Silence Gap
+
+Chord (O :| [E,A])
+	Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+		Chord (O :| [U])
+			Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	Chord (E :| [I])
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Consonant (MkConsonant {manner = C, voice = Brown, place = Back})
+				NeutralVowel
+					Chord (I :| [A])
+						NeutralVowel
+							Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+										Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+											Chord (E :| [A,A,O])
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+															Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																Liminal H2W
+																	NeutralVowel
+																		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																				NeutralVowel
+																					Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+																						Chord (I :| [])
+																							Chord (E :| [A,O])
+																								Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																									Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																										NeutralVowel
+
+Chord (U :| [O,E,I])
+	Silence PhraseBoundary
+		Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+			Chord (O :| [U])
+				Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Chord (I :| [])
+				NeutralVowel
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+							Chord (A :| [I])
+								Silence Gap
+
+Consonant (MkConsonant {manner = C, voice = White, place = Back})
+	NeutralVowel
+		Chord (E :| [A])
+			Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+				Chord (I :| [A])
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Liminal H2W
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+	Chord (I :| [A,O,U])
+		Consonant (MkConsonant {manner = P, voice = White, place = Back})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Chord (O :| [E,A])
+
+Chord (I :| [A])
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			Chord (I :| [])
+				Silence Gap
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						Chord (I :| [])
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+									Consonant (MkConsonant {manner = P, voice = White, place = Back})
+										Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+	NeutralVowel
+		Chord (I :| [A])
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+						Consonant (MkConsonant {manner = S, voice = White, place = Front})
+							Chord (I :| [A,U])
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+											Silence Gap
+												Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+													Chord (I :| [I,A])
+														Chord (E :| [A])
+															NeutralVowel
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																	Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+																		Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+	Chord (I :| [I,A])
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+				Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+							Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+								NeutralVowel
+									Chord (E :| [A])
+										Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+											Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+												NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = White, place = Front})
+	Chord (A :| [I,A])
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			Silence Gap
+				Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+					Chord (I :| [I,A])
+						Chord (A :| [I])
+							Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+								Chord (I :| [A])
+									NeutralVowel
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	Chord (I :| [E,U])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						NeutralVowel
+							Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+								Chord (I :| [])
+									Silence Gap
+										NeutralVowel
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+													Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+														Chord (O :| [U])
+															Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Chord (I :| [])
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+					Chord (O :| [I,A])
+						Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+							Chord (O :| [])
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+											Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+												NeutralVowel
+													Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+														Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+															Chord (O :| [])
+																Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																	Consonant (MkConsonant {manner = S, voice = White, place = Front})
+																		NeutralVowel
+																			Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+																				Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																					Silence PhraseBoundary
+																						Chord (A :| [I])
+																							Chord (A :| [])
+																								Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																										NeutralVowel
+																											Chord (I :| [A])
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+		Chord (U :| [])
+			Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Chord (A :| [O])
+						Chord (U :| [O,A,I])
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+								Chord (A :| [I])
+									Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+						Liminal H2W
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+									Chord (E :| [A])
+										NeutralVowel
+											Consonant (MkConsonant {manner = S, voice = White, place = Front})
+												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+													Silence PhraseBoundary
+														Chord (U :| [O,A,I])
+															Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																Chord (E :| [I])
+																	Liminal H2W
+																		NeutralVowel
+																			Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																				Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Chord (A :| [])
+						Consonant (MkConsonant {manner = P, voice = White, place = Front})
+							Chord (O :| [])
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+									Chord (A :| [])
+										Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+											Silence Gap
+												NeutralVowel
+													Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+														Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+															Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+																NeutralVowel
+																	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																		Silence Gap
+
+Liminal H2W
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = P, voice = White, place = Front})
+			Chord (I :| [])
+				Chord (U :| [O])
+					NeutralVowel
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+							Silence Gap
+
+Chord (O :| [U])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Chord (E :| [A,I])
+			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	NeutralVowel
+		Chord (E :| [A])
+			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+				Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+					Silence Gap
+						Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+									Chord (A :| [I])
+										Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (U :| [])
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Consonant (MkConsonant {manner = S, voice = White, place = Front})
+							NeutralVowel
+								Chord (I :| [A])
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+						Consonant (MkConsonant {manner = S, voice = White, place = Front})
+							NeutralVowel
+								Chord (I :| [A])
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+											Silence PhraseBoundary
+												Consonant (MkConsonant {manner = S, voice = White, place = Front})
+													NeutralVowel
+														Chord (I :| [A])
+															Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																NeutralVowel
+																	Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																			Chord (O :| [E,A])
+																				Silence Gap
+																					Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																						Chord (E :| [A,O,U])
+																							Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																								Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																									Silence Gap
+																										NeutralVowel
+																											Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																												Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																													NeutralVowel
+																														Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+																															Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																																Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																																	Silence Gap
+																																		NeutralVowel
+																																			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																																				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																																					Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	NeutralVowel
+		Chord (I :| [A])
+			Consonant (MkConsonant {manner = C, voice = White, place = Back})
+				NeutralVowel
+					Chord (I :| [A])
+						Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+							Silence Gap
+								Consonant (MkConsonant {manner = S, voice = White, place = Back})
+									Chord (I :| [])
+										Liminal H2W
+											NeutralVowel
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+													Chord (E :| [A])
+														NeutralVowel
+															Chord (I :| [A])
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																	Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																			NeutralVowel
+																				Consonant (MkConsonant {manner = S, voice = White, place = Front})
+																					NeutralVowel
+																						Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+																							Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																								NeutralVowel
+																									Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																										Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																											Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																												Consonant (MkConsonant {manner = P, voice = White, place = Front})
+																													Chord (I :| [])
+																														Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																															Silence Gap
+																																NeutralVowel
+																																	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																																		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																																			Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																																				Chord (I :| [I,A])
+																																					Consonant (MkConsonant {manner = S, voice = White, place = Front})
+																																						NeutralVowel
+																																							Chord (I :| [A])
+																																								Liminal H2W
+																																									NeutralVowel
+																																										Chord (I :| [A])
+																																											Silence Gap
+
+Chord (O :| [U,E,A])
+	Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+		NeutralVowel
+			Chord (I :| [A])
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+							Silence Gap
+
+Chord (E :| [A])
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+			NeutralVowel
+				Chord (I :| [A])
+					Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+				NeutralVowel
+					Chord (I :| [A])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+							Silence UtteranceBoundary
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	Chord (E :| [A,A,O])
+		NeutralVowel
+			Chord (I :| [A])
+				Chord (A :| [I])
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+						Chord (E :| [I])
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+									Liminal H2W
+										NeutralVowel
+											Chord (I :| [A])
+												Silence Gap
+
+Chord (A :| [])
+	Consonant (MkConsonant {manner = S, voice = White, place = Front})
+		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+			NeutralVowel
+				Chord (I :| [A])
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						NeutralVowel
+							Consonant (MkConsonant {manner = S, voice = White, place = Back})
+								Chord (E :| [I])
+									Consonant (MkConsonant {manner = P, voice = White, place = Front})
+										Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+											Chord (O :| [])
+												Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+													Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+														NeutralVowel
+															Chord (U :| [O,O,E,A])
+																Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+																	Silence Gap
+																		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																			Chord (A :| [])
+																				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																					Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																						NeutralVowel
+																							Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																								Chord (I :| [])
+																									Chord (U :| [O])
+																										NeutralVowel
+																											Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																												Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																													Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																														Chord (I :| [A,A])
+																															Consonant (MkConsonant {manner = C, voice = White, place = Back})
+																																NeutralVowel
+
+Chord (U :| [O,E,I])
+	Chord (U :| [O])
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				Consonant (MkConsonant {manner = S, voice = White, place = Back})
+					Chord (I :| [])
+						Chord (U :| [O])
+							NeutralVowel
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+									Silence Gap
+
+Chord (A :| [])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+			Chord (I :| [A,I])
+				Silence PhraseBoundary
+					Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+						NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+			Chord (A :| [I])
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Chord (U :| [])
+						Chord (A :| [I])
+							Consonant (MkConsonant {manner = P, voice = White, place = Back})
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					Chord (E :| [A,I])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+							Liminal H2W
+								Chord (I :| [I,A])
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+										Chord (O :| [])
+											Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+												Silence Gap
+
+Chord (I :| [A])
+	NeutralVowel
+		Chord (E :| [A,I])
+			Silence PhraseBoundary
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+							Chord (U :| [])
+								Consonant (MkConsonant {manner = P, voice = White, place = Back})
+									Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+										Chord (U :| [])
+											Chord (E :| [A,O])
+												Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+													Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+														NeutralVowel
+															Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						NeutralVowel
+							Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+								NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = White, place = Front})
+	Chord (E :| [A,A,I])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+			Silence UtteranceBoundary
+				Consonant (MkConsonant {manner = S, voice = White, place = Front})
+					NeutralVowel
+						Chord (I :| [A])
+							NeutralVowel
+								Chord (E :| [A,O])
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+										Chord (E :| [A,O])
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+													Chord (A :| [I])
+														Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+															Silence Gap
+																Chord (O :| [E,A])
+																	Chord (A :| [I])
+																		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																			NeutralVowel
+																				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																					Chord (U :| [O])
+																						NeutralVowel
+																							Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+																								Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																									Chord (E :| [A,I])
+																										Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																											Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																												NeutralVowel
+																													Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																														Chord (I :| [A,U])
+																															Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																																Silence Gap
+																																	NeutralVowel
+																																		Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Silence Gap
+
+NeutralVowel
+	Chord (I :| [A])
+		Consonant (MkConsonant {manner = S, voice = White, place = Front})
+			Consonant (MkConsonant {manner = P, voice = White, place = Back})
+				Chord (U :| [O,E,I])
+					Consonant (MkConsonant {manner = P, voice = White, place = Back})
+						Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+									Chord (E :| [A,I])
+										Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+											Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+												Silence PhraseBoundary
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+
+Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+	NeutralVowel
+		Chord (E :| [A])
+			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+				Chord (U :| [])
+					Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Chord (I :| [])
+				NeutralVowel
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+							Chord (I :| [])
+								Silence Gap
+
+Chord (A :| [])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+		NeutralVowel
+			Chord (I :| [A])
+				Silence Gap
+					Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+						NeutralVowel
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Silence Gap
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										Chord (O :| [E,A])
+											Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+												Liminal H2W
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+															Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+	Chord (I :| [A,O,U])
+		Consonant (MkConsonant {manner = P, voice = White, place = Back})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Chord (A :| [I])
+									Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (U :| [])
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+					NeutralVowel
+						Chord (E :| [A,A,I])
+							Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+											Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+												NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = S, voice = White, place = Front})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Chord (I :| [])
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	Chord (O :| [I,A])
+		Silence PhraseBoundary
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+					Chord (U :| [O])
+						NeutralVowel
+							Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+								Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+	Chord (I :| [I,A])
+		NeutralVowel
+			Consonant (MkConsonant {manner = S, voice = White, place = Front})
+				Chord (A :| [I])
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										Chord (I :| [A,A])
+											Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+												Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+													NeutralVowel
+														Consonant (MkConsonant {manner = C, voice = White, place = Back})
+															Chord (I :| [I,A])
+																Silence Gap
+
+Chord (O :| [U])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+		NeutralVowel
+			Chord (I :| [A])
+				Silence Gap
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+											Silence Gap
+
+Chord (I :| [])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				Chord (U :| [O])
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Chord (A :| [I])
+								Consonant (MkConsonant {manner = P, voice = White, place = Back})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+											Chord (I :| [A,I])
+												Consonant (MkConsonant {manner = C, voice = White, place = Back})
+													Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+														NeutralVowel
+															Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	Chord (U :| [I,A])
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Chord (O :| [])
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+					Chord (A :| [I])
+						Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (U :| [])
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+							NeutralVowel
+								Chord (I :| [A])
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+										NeutralVowel
+											Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+													NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+					Chord (U :| [O])
+						NeutralVowel
+							Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+								Chord (U :| [O,A,I,E,A])
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										Silence PhraseBoundary
+											Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+												Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+													Chord (U :| [])
+														Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+															NeutralVowel
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																	Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																		Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+																			Chord (I :| [A,A])
+																				Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																					Silence Gap
+																						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																							Chord (O :| [])
+																								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																									NeutralVowel
+																										Silence Gap
+
+Chord (E :| [A])
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					Chord (O :| [I,A])
+						Chord (U :| [O,U])
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+											Chord (U :| [O])
+												NeutralVowel
+													Chord (E :| [A])
+														Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+															Chord (I :| [A])
+																NeutralVowel
+																	Consonant (MkConsonant {manner = P, voice = White, place = Front})
+																		NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+					Silence Gap
+
+Chord (A :| [O])
+	NeutralVowel
+		Chord (I :| [A])
+			Liminal H2W
+				Chord (A :| [])
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+						Consonant (MkConsonant {manner = C, voice = Brown, place = Mid})
+							Silence PhraseBoundary
+								Chord (A :| [I])
+									Consonant (MkConsonant {manner = S, voice = White, place = Front})
+										NeutralVowel
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+												Consonant (MkConsonant {manner = P, voice = White, place = Back})
+													Chord (A :| [I])
+														Silence Gap
+
+Chord (O :| [E,A])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+		Chord (O :| [U])
+			Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+						Chord (A :| [I])
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Consonant (MkConsonant {manner = S, voice = White, place = Front})
+									Chord (I :| [A])
+										NeutralVowel
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+													NeutralVowel
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	Consonant (MkConsonant {manner = P, voice = White, place = Front})
+		Chord (I :| [I,A])
+			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+						Silence UtteranceBoundary
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	Chord (E :| [A,A,O])
+		NeutralVowel
+			Chord (I :| [A])
+				Chord (E :| [A,U])
+					Consonant (MkConsonant {manner = P, voice = White, place = Back})
+						Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+							Chord (A :| [])
+								Consonant (MkConsonant {manner = P, voice = White, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+												Chord (I :| [])
+													NeutralVowel
+														Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+															Chord (E :| [A,O,U])
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																	Chord (O :| [])
+																		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																			Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Back})
+	Chord (O :| [U])
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+				Liminal H2W
+					NeutralVowel
+						Chord (I :| [A])
+							Chord (A :| [])
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										NeutralVowel
+											Chord (I :| [A])
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+		Chord (A :| [])
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+							Silence PhraseBoundary
+								Consonant (MkConsonant {manner = S, voice = White, place = Back})
+									Chord (I :| [])
+										Chord (U :| [O])
+											NeutralVowel
+												Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+															Chord (I :| [A,E,I])
+																Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																	Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+																		NeutralVowel
+																			Chord (I :| [A,E,A])
+																				Silence PhraseBoundary
+
+Chord (E :| [A,A,I,A])
+	Consonant (MkConsonant {manner = C, voice = Brown, place = Back})
+		NeutralVowel
+			Chord (I :| [A])
+				Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+								Chord (I :| [])
+									Silence Gap
+										Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+											Chord (O :| [U])
+												Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+													NeutralVowel
+														Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+															Chord (A :| [I])
+																Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																	NeutralVowel
+																		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																			Consonant (MkConsonant {manner = S, voice = White, place = Front})
+																				NeutralVowel
+																					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																						Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																							Chord (A :| [I])
+																								Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																									Chord (I :| [A,U])
+																										Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																											Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																												NeutralVowel
+
+Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+	Chord (A :| [I])
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+			Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+				Chord (O :| [])
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+						Liminal H2W
+							NeutralVowel
+								Chord (I :| [A])
+									Chord (U :| [O,U])
+										Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+											NeutralVowel
+												Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+													Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+														Consonant (MkConsonant {manner = P, voice = White, place = Back})
+															Chord (E :| [A,E,I])
+																Silence UtteranceBoundary
+																	Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+																		NeutralVowel
+																			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																				Chord (A :| [I])
+																					Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (U :| [])
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+						Chord (E :| [A])
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+										Chord (A :| [I])
+											Chord (I :| [A,U])
+												Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+													Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+														NeutralVowel
+															Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																	Chord (O :| [I,A])
+																		Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+			Chord (I :| [])
+				Chord (A :| [I])
 					Liminal H2W
-						Chord [Q]
+						NeutralVowel
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+									NeutralVowel
+										Consonant (MkConsonant {manner = S, voice = White, place = Front})
+											NeutralVowel
+												Consonant (MkConsonant {manner = P, voice = White, place = Back})
+													Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+														Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+															Chord (I :| [])
+																Silence Gap
+
+Chord (A :| [])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+		NeutralVowel
+			Chord (I :| [A])
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					Chord (O :| [E,A])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+							Silence PhraseBoundary
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+										Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+											NeutralVowel
+												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+													Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+														Chord (A :| [I])
+															Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																Chord (A :| [I])
+																	Consonant (MkConsonant {manner = S, voice = White, place = Front})
+																		Chord (O :| [])
+																			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																				Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = White, place = Back})
+			Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+							NeutralVowel
+								Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+									Chord (U :| [O])
+										NeutralVowel
+											Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+												Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+													Chord (I :| [])
+														NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = S, voice = White, place = Front})
+			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+						Chord (E :| [I])
+							Consonant (MkConsonant {manner = P, voice = White, place = Back})
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+											Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+												Chord (A :| [I])
+													Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+				NeutralVowel
+					Chord (I :| [A])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+							Silence PhraseBoundary
+								Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+									NeutralVowel
+										Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+											NeutralVowel
+												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+													Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+														NeutralVowel
+															Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																	Chord (U :| [])
+																		Chord (U :| [O,E,I])
+																			Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																				Chord (A :| [])
+																					Consonant (MkConsonant {manner = P, voice = White, place = Front})
+																						Silence PhraseBoundary
+																							Chord (A :| [I])
+																								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																									Chord (O :| [U])
+																										Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																											NeutralVowel
+																												Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																													Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																														Chord (E :| [I])
+																															Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																																NeutralVowel
+																																	Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																																		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																																			Liminal H2W
+																																				NeutralVowel
+																																					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																																						Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+																																							NeutralVowel
+																																								Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																																									Chord (E :| [A,A,I])
+																																										Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																																											Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+																																												Chord (I :| [])
+																																													Silence Gap
+
+Chord (I :| [])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				NeutralVowel
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+						Chord (A :| [I])
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+								Chord (U :| [])
+									Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+										NeutralVowel
+											Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+												Chord (U :| [O])
+													NeutralVowel
+														Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+															Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						NeutralVowel
+							Consonant (MkConsonant {manner = P, voice = White, place = Back})
+								Chord (E :| [I])
+									Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+										Silence PhraseBoundary
+											Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+												Chord (O :| [U])
+													Chord (A :| [I])
+														Consonant (MkConsonant {manner = P, voice = White, place = Front})
+															Chord (I :| [A,A,I])
+																Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																	Chord (A :| [O])
+																		Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																				NeutralVowel
+																					Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+																						Consonant (MkConsonant {manner = P, voice = White, place = Back})
+																							Chord (I :| [A,U])
+																								Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+																									Chord (U :| [O])
+																										NeutralVowel
+																											Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																												Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																													NeutralVowel
+																														Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+	Chord (I :| [A,O,U])
+		Consonant (MkConsonant {manner = P, voice = White, place = Back})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Consonant (MkConsonant {manner = S, voice = White, place = Back})
+						Chord (A :| [I,A])
+							Consonant (MkConsonant {manner = C, voice = Brown, place = Mid})
+								NeutralVowel
+									Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+										Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+											Chord (E :| [A,A])
+												Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+													Silence Gap
+														Chord (U :| [O])
+															NeutralVowel
+																Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																	Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+																		NeutralVowel
+																			Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+	Chord (I :| [A,O,U])
+		Consonant (MkConsonant {manner = P, voice = White, place = Back})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Front})
+	NeutralVowel
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+			Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+				NeutralVowel
+					Chord (I :| [A])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+							NeutralVowel
+								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+									Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+										Chord (A :| [I])
+											Silence Gap
+
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	NeutralVowel
+		Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+				NeutralVowel
+					Chord (I :| [A])
+						Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
+										Chord (I :| [])
+											Silence Gap
+												Chord (A :| [I])
+													Chord (I :| [A,A])
+														Consonant (MkConsonant {manner = P, voice = White, place = Front})
+															Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+																	Chord (U :| [O,A,I])
+																		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																			NeutralVowel
+
+Chord (I :| [A,A,O])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+			Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+				NeutralVowel
+					Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+						Consonant (MkConsonant {manner = P, voice = White, place = Back})
+							Chord (U :| [O,I,I,A])
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+									Chord (O :| [])
+										Consonant (MkConsonant {manner = S, voice = White, place = Front})
+											Consonant (MkConsonant {manner = S, voice = White, place = Back})
+												Chord (A :| [])
+													Consonant (MkConsonant {manner = S, voice = White, place = Front})
+														Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+															NeutralVowel
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																	Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																		Chord (U :| [O])
+																			NeutralVowel
+																				Consonant (MkConsonant {manner = C, voice = Brown, place = Back})
+																					Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																						NeutralVowel
+																							Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																								NeutralVowel
+																									Silence Gap
+
+Chord (U :| [O,U])
+	Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+	Chord (A :| [O])
+		NeutralVowel
+			Chord (E :| [A])
+				Silence Gap
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
 							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
 								Silence Gap
 
 Consonant (MkConsonant {manner = S, voice = White, place = Front})
-	Chord [O,A,Q,Q]
+	Chord (A :| [I])
 		Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
-			Chord [A,O]
-				Consonant (MkConsonant {manner = P, voice = White, place = Mid})
-					Chord [Q]
-						Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
-							Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
-								Chord [Q]
+			NeutralVowel
+				Chord (E :| [A,I])
+					Silence Gap
+
+Chord (I :| [E,U])
+	Consonant (MkConsonant {manner = S, voice = Brown, place = Mid})
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+					Chord (A :| [I])
+						Liminal H2W
+							Chord (O :| [U,E,A])
+								Chord (U :| [O,E,I])
+									Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+										Chord (A :| [I])
+											Silence Gap
+
+Chord (O :| [U])
+	Consonant (MkConsonant {manner = P, voice = White, place = Front})
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+				Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+					Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+						NeutralVowel
+							Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+								Chord (O :| [I,A])
+									Silence PhraseBoundary
+
+Chord (O :| [U])
+	Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+		Chord (E :| [A,I])
+			Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+				NeutralVowel
+					Consonant (MkConsonant {manner = S, voice = White, place = Front})
+						Chord (A :| [I])
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+								Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
 									Silence Gap
 
-Consonant (MkConsonant {manner = P, voice = White, place = Back})
-	Chord [A]
-		Consonant (MkConsonant {manner = P, voice = Brown, place = Front})
-			Chord [Q]
-				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
-					Chord [Q]
-						Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+			Consonant (MkConsonant {manner = S, voice = White, place = Front})
+				NeutralVowel
+					Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
+						Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+	Chord (I :| [I,A])
+		NeutralVowel
+			Consonant (MkConsonant {manner = S, voice = White, place = Front})
+				Chord (A :| [I])
+					NeutralVowel
+						Consonant (MkConsonant {manner = P, voice = Nasal, place = Back})
 							Silence PhraseBoundary
-								Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
-									Chord [Q]
-										Consonant (MkConsonant {manner = S, voice = White, place = Front})
+								NeutralVowel
+									Chord (I :| [A,U])
+										Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+											Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+												Chord (A :| [I,A])
+													Consonant (MkConsonant {manner = P, voice = White, place = Back})
+														Silence Gap
+															NeutralVowel
+																Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+																	Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+																		Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	Chord (A :| [])
+		Consonant (MkConsonant {manner = S, voice = Brown, place = Front})
+			NeutralVowel
+				Chord (I :| [A])
+					Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+						NeutralVowel
+							Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+								NeutralVowel
+									Consonant (MkConsonant {manner = P, voice = Brown, place = Mid})
+										Chord (A :| [I,A])
+											Consonant (MkConsonant {manner = P, voice = White, place = Back})
+												Consonant (MkConsonant {manner = S, voice = White, place = Mid})
+													Chord (U :| [])
+														Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+															Silence PhraseBoundary
+																Chord (E :| [A])
+																	NeutralVowel
+
+Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+	Chord (O :| [U,E,A,I])
+		NeutralVowel
+			Consonant (MkConsonant {manner = P, voice = Nasal, place = Front})
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Chord (O :| [])
+						Consonant (MkConsonant {manner = P, voice = White, place = Mid})
+							Consonant (MkConsonant {manner = P, voice = White, place = Front})
+								Chord (E :| [A,A])
+									Consonant (MkConsonant {manner = S, voice = White, place = Back})
+										Chord (I :| [A,A])
+											Consonant (MkConsonant {manner = P, voice = Brown, place = Back})
+												Silence UtteranceBoundary
+													NeutralVowel
+														Silence Gap
+
+Consonant (MkConsonant {manner = P, voice = White, place = Back})
+	NeutralVowel
+		Consonant (MkConsonant {manner = C, voice = White, place = Back})
+			NeutralVowel
+				Consonant (MkConsonant {manner = P, voice = Nasal, place = Mid})
+					Silence UtteranceBoundary
 

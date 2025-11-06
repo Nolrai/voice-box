@@ -2,14 +2,16 @@
 
 This repository is a small Haskell synthesis project named `voice-box`. It contains
 1) a library (`src-lib`) with the core parsing and synthesis logic under `Voice/`,
-2) an executable (`src-exe/Main.hs`) that ties the library to CLI behavior, and
-3) a small test suite (`src-test`) plus example test inputs in `test/`.
+2) stub modules for audio analysis under `VoiceBox/` (future feature extraction from WAV files),
+3) an executable (`src-exe/Main.hs`) that ties the library to CLI behavior, and
+4) a small test suite (`src-test`) plus example test inputs in `test/`.
 
 Key modules to read first:
 - `src-lib/Voice/IPA.hs` — top-level parsing glue
 - `src-lib/Voice/IPA/` — Megaparsec parsers (Roman, PhonoCode, Common, Types)
 - `src-lib/Voice/Synth.hs` and `src-lib/Voice/Types.hs` — how parsed data maps to audio
 - `src-lib/Voice/Util.hs` — I/O helpers used across the project
+- `src-lib/VoiceBox/` — stub modules for future audio analysis/resynthesis (Analyze, Synthesize, Pipeline, Types)
 - `src-exe/Main.hs` — program entrypoint and CLI wiring
 
 Why things are structured this way
@@ -17,6 +19,8 @@ Why things are structured this way
   intermediate structures (`IPA.Types`, `Voice.Types`). `Synth` consumes those types and drives
   the audio backend (`lambdasound`). This separation keeps parsing, representation and synthesis
   logic independent and testable.
+- VoiceBox modules are currently stubs for future audio analysis/feature extraction work (analyzing
+  real audio files and extracting pitch, formants, envelopes, etc. for hybrid synthesis).
 
 Build / run / test (practical commands)
 

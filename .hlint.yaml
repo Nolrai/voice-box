@@ -1,0 +1,8 @@
+# HLint configuration for voice-box
+
+# Standard HLint suggestions
+- group: {name: default, enabled: true}
+
+# Project-specific hints can be added here
+# Example:
+# - warn: {lhs: "somePattern", rhs: "betterPattern", note: "Explanation"}
