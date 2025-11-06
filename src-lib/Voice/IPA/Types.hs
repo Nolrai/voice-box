@@ -1,4 +1,4 @@
-module ProtoDoll.Parse.Types where
+module Voice.IPA.Types where
 
 import Data.Void (Void)
 import Data.Text (Text)

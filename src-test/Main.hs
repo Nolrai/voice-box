@@ -1,7 +1,7 @@
 module Main (main) where
 
-import ProtoDoll.Parse qualified as PD
-import ProtoDoll.Parse.Types qualified as PR
+import Voice.IPA qualified as PD
+import Voice.IPA.Types qualified as PR
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.Exit (exitFailure)
 import System.FilePath (takeDirectory)
@@ -39,8 +39,11 @@ main = do
           putStrLn actual
           exitFailure
 
-prettyPrint :: [PR.Foot] -> String
-prettyPrint feet = unlines $ prettyPrintFoot <$> feet
+prettyPrint :: [[PR.Foot]] -> String
+prettyPrint paragraphs = unlines $ concatMap prettyPrintParagraph paragraphs
+
+prettyPrintParagraph :: [PR.Foot] -> [String]
+prettyPrintParagraph feet = prettyPrintFoot <$> feet
 
 prettyPrintFoot :: PR.Foot -> String
 prettyPrintFoot foot = unlines $ zipWith prettyPrintPhoneme [0 ..] foot

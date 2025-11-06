@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module ProtoDoll.Parse.Roman
+module Voice.IPA.Roman
   ( parseText
   ) where
 import Data.Text (Text)
@@ -7,8 +7,8 @@ import Text.Megaparsec
 import Text.Megaparsec.Char
 import Data.Functor (($>))
 
-import ProtoDoll.Parse.Types
-import qualified ProtoDoll.Parse.Common as C
+import Voice.IPA.Types
+import qualified Voice.IPA.Common as C
 
 -- top-level (same shape as Phono parser)
 parseText :: Parser [[Foot]]

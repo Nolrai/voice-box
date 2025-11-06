@@ -1,12 +1,12 @@
 module Main where
 
-import ProtoDoll.Parse
-import ProtoDoll.Synth
+import Voice.IPA
+import Voice.Synth
 import System.Environment (getArgs)
 import System.Exit (exitSuccess)
 import LambdaSound
 import System.FilePath (dropExtension, (<.>))
-import Utils.IO (writeFileUtf8)
+import Voice.Util (writeFileUtf8)
 import qualified Data.Text as Text
 import Paths_voice_box
 
@@ -27,7 +27,7 @@ printVersion = putStrLn $ "voice-box version" <> show version
 
 processFile :: FilePath -> IO ()
 processFile path = do
-  result <- ProtoDoll.Parse.parseFile path
+  result <- Voice.IPA.parseFile path
   putStrLn $ "Parsed " ++ show (length result) ++ " utterances."
 
   let feetCount = length <$> result

@@ -20,7 +20,7 @@ name:               voice-box
 -- PVP summary:     +-+------- breaking API changes
 --                  | | +----- non-breaking API additions
 --                  | | | +--- code changes with no API change
-version:            0.2.0.0
+version:            1.0.0.0
 
 -- A short (one-line) description of the package.
 -- synopsis:
@@ -60,14 +60,14 @@ library
 
     -- Modules exported by the library.
     exposed-modules:
-        ProtoDoll.SynthTypes
-        ProtoDoll.Parse
-        ProtoDoll.Parse.Roman
-        ProtoDoll.Parse.PhonoCode
-        ProtoDoll.Parse.Common
-        ProtoDoll.Parse.Types
-        ProtoDoll.Synth
-        Utils.IO
+        Voice.Types
+        Voice.IPA
+        Voice.IPA.Roman
+        Voice.IPA.PhonoCode
+        Voice.IPA.Common
+        Voice.IPA.Types
+        Voice.Synth
+        Voice.Util
 
     -- Modules included in this library but not exported.
     other-modules:

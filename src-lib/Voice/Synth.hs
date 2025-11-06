@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module ProtoDoll.Synth (footToSound, chainSynthisis, paragraphsToSound) where
+module Voice.Synth (footToSound, chainSynthisis, paragraphsToSound) where
 
 import Control.Monad.State.Strict (State, evalState, get, put)
 import Data.IntSet
@@ -10,9 +10,9 @@ import Data.List.NonEmpty qualified as NE
 import Data.Word (Word16)
 import LambdaSound hiding (I, f1, f2)
 import LambdaSound qualified as Sound
-import ProtoDoll.Parse.Types hiding (I)
-import ProtoDoll.Parse.Types as PR
-import ProtoDoll.SynthTypes as ST
+import Voice.IPA.Types hiding (I)
+import Voice.IPA.Types as PR
+import Voice.Types as ST
 
 paragraphsToSound :: [[Foot]] -> Sound T Pulse
 paragraphsToSound paragraphs =

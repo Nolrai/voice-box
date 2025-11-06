@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module ProtoDoll.Parse.Common
+module Voice.IPA.Common
   ( Parser
   , longestChoice
   , vowelName
@@ -20,7 +20,7 @@ import Text.Megaparsec.Char
 import Data.List (sortBy)
 import Data.Ord (comparing)
 import Data.List.NonEmpty (NonEmpty(..))
-import ProtoDoll.Parse.Types
+import Voice.IPA.Types
 import Data.Functor (($>))
 
 -- Build a choice parser from (text -> value) table using longest-first matching.

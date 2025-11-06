@@ -1,4 +1,4 @@
-module ProtoDoll.SynthTypes where
+module Voice.Types where
 
 import Data.IntSet (IntSet)
 import Data.Word (Word16, Word8)

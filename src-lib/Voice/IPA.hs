@@ -1,10 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module ProtoDoll.Parse (parseFile) where
+module Voice.IPA (parseFile) where
 
-import ProtoDoll.Parse.Types
-import qualified ProtoDoll.Parse.PhonoCode as Phono
-import qualified ProtoDoll.Parse.Roman as Roman
+import Voice.IPA.Types
+import qualified Voice.IPA.PhonoCode as Phono
+import qualified Voice.IPA.Roman as Roman
 
 import Control.Monad.Except
 import Text.Megaparsec (runParser, eof)

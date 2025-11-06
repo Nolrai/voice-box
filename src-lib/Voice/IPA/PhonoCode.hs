@@ -1,16 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module ProtoDoll.Parse.PhonoCode where
+module Voice.IPA.PhonoCode where
 
 import Control.Exception (throwIO)
 import qualified Data.ByteString as BS
 import Data.Functor (($>))
 import Data.Text.Encoding (decodeUtf8')
-import ProtoDoll.Parse.Types
+import Voice.IPA.Types
 import Text.Megaparsec
 import Text.Megaparsec.Char
 
-import qualified ProtoDoll.Parse.Common as C
+import qualified Voice.IPA.Common as C
 
 -- | Read and parse a file containing ProtoDoll text.
 --
