@@ -13,7 +13,8 @@ import qualified Data.Vector.Storable as V
 import Data.Complex (Complex ((:+)))
 import qualified Math.FFT as FFT
 import qualified Data.Array.CArray as CA
-import VoiceBox.Analyze (readWaveFile, writeWaveFile)
+import VoiceBox.Analyze (readWaveFile, writeWaveFile, extractEnvelope)
+import VoiceBox.Types (AmplitudeSample(..), defaultAnalysisParams)
 
 --------------------------------------------
 -- | Transformation Parameters
@@ -63,35 +64,24 @@ transformAudio sampleRate = transformAudioWithParams sampleRate preDoll0Params
 -- | Transform audio with custom parameters
 transformAudioWithParams :: Int -> TransformParams -> V.Vector Double -> V.Vector Double
 transformAudioWithParams sampleRate params samples =
-  let sr = fromIntegral sampleRate
-      -- Apply effects pipeline (pitch shift now integrated into autotune)
-      samples1 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) (tpPitchShift params) samples
-      samples2 = applyBandwidthLimit sampleRate (tpBandwidthHz params) samples1
-      samples3 = injectHum sr (tpHumFreq params) (tpHumLevel params) samples2
-      samples4 = applyMetallicEffect sr (tpMetallicFreq params) (tpMetallicDepth params) samples3
-      samples5 = applyEnergyDecay (tpDecayRate params) samples4
-      samples6 = applyTransitionNoise (tpNoiseLevel params) samples5
-  in samples6
+  let -- Apply harmonic vocoder first with envelope preservation and bandwidth rolloff
+      fundamental = fromIntegral (tpAutotuneSteps params)
+      samples0 = applyHarmonicVocoder sampleRate fundamental samples
+      -- Then apply autotune for intelligibility
+      samples1 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) (tpPitchShift params) samples0
+  in samples1
 
 -- | Return named intermediate stages of the transformation pipeline
 transformStages :: Int -> TransformParams -> V.Vector Double -> [(String, V.Vector Double)]
 transformStages sampleRate params samples =
-  let sr = fromIntegral sampleRate
+  let fundamental = fromIntegral (tpAutotuneSteps params)
       s0 = samples
-      s1 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) (tpPitchShift params) s0
-      s2 = applyBandwidthLimit sampleRate (tpBandwidthHz params) s1
-      s3 = injectHum sr (tpHumFreq params) (tpHumLevel params) s2
-      s4 = applyMetallicEffect sr (tpMetallicFreq params) (tpMetallicDepth params) s3
-      s5 = applyEnergyDecay (tpDecayRate params) s4
-      s6 = applyTransitionNoise (tpNoiseLevel params) s5
+      s1 = applyHarmonicVocoder sampleRate fundamental s0
+      s2 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) (tpPitchShift params) s1
   in [ ("00_original", s0)
-     , ("01_autotune_pitch", s1)  -- Combined pitch shift + autotune
-     , ("02_bandwidth", s2)
-     , ("03_hum", s3)
-     , ("04_metallic", s4)
-     , ("05_decay", s5)
-     , ("06_transition", s6)
-     , ("07_final", s6)
+     , ("01_vocoder", s1)  -- Harmonic vocoder with envelope + bandwidth rolloff (120Hz fundamental: harmonics 1-20 full, 21-25 fade, >25 drop)
+     , ("02_autotune", s2)  -- Pitch shift + autotune (improves intelligibility)
+     , ("03_final", s2)
      ]
 
 --------------------------------------------
@@ -186,6 +176,98 @@ applyTransitionNoise level samples =
     -- Simple deterministic "noise" based on sample value
     -- In production, use a proper PRNG
     pseudoRandom x = sin (x * 12345.6789) * 0.5
+
+-- | Harmonic vocoder - keeps only exact harmonics of fundamental frequency
+-- Creates pure synthetic voice by removing all non-harmonic content
+-- Preserves vowel character at harmonic frequencies
+-- Preserves amplitude envelope from original signal for natural dynamics
+applyHarmonicVocoder :: Int -> Double -> V.Vector Double -> V.Vector Double
+applyHarmonicVocoder sampleRate fundamentalHz samples =
+  let n = V.length samples
+      -- Extract envelope from original signal
+      analysisParams = defaultAnalysisParams
+      originalEnvelope = extractEnvelope sampleRate analysisParams samples
+
+      -- Apply vocoding
+      complexSamples = V.map (:+ 0) samples
+      spectrum = fftForward complexSamples
+
+      sr = fromIntegral sampleRate
+      tolerance = 5.0  -- Hz - bandwidth around each harmonic to keep
+
+      -- Keep only frequencies near harmonics of fundamental, with bandwidth rolloff
+      filtered = V.imap (\i val ->
+        let freq = if i <= n `div` 2
+                   then fromIntegral i * sr / fromIntegral n
+                   else sr - fromIntegral (n - i) * sr / fromIntegral n
+            -- Find nearest harmonic
+            harmonic = round (freq / fundamentalHz) :: Int
+            harmonicFreq = fundamentalHz * fromIntegral harmonic
+            distance = abs (freq - harmonicFreq)
+
+            -- Bandwidth rolloff: full strength up to harmonic 20, fade 21-25, drop >25
+            -- (120Hz fundamental: harmonic 20 = 2400Hz, harmonic 25 = 3000Hz)
+            harmonicAttenuation
+              | harmonic <= 20 = 1.0
+              | harmonic >= 25 = 0.0
+              | otherwise = fromIntegral (25 - harmonic) / 5.0  -- Linear fade 21→25
+
+        in if distance <= tolerance && harmonic > 0
+           then val * (harmonicAttenuation :+ 0)
+           else 0 :+ 0) spectrum
+
+      -- Convert back to time domain
+      result = fftInverse filtered
+      vocoded = V.map (\(r :+ _) -> r) result
+
+      -- Extract envelope from vocoded signal
+      vocodedEnvelope = extractEnvelope sampleRate analysisParams vocoded
+
+      -- Apply original envelope to vocoded signal
+      envelopeApplied = applyEnvelopeRatio sampleRate originalEnvelope vocodedEnvelope vocoded
+
+  in envelopeApplied
+
+-- | Apply envelope ratio from original to vocoded signal
+-- For each sample, interpolate between envelope points and multiply by ratio
+applyEnvelopeRatio :: Int -> [AmplitudeSample] -> [AmplitudeSample] -> V.Vector Double -> V.Vector Double
+applyEnvelopeRatio sampleRate origEnv vocodedEnv samples =
+  let sr = fromIntegral sampleRate
+
+      -- Build lookup function for envelope ratio at any time
+      getRatio :: Double -> Double
+      getRatio t =
+        let -- Find surrounding envelope points
+            findEnvelope env =
+              case dropWhile (\s -> ampTime s < t) env of
+                [] -> case reverse env of
+                       [] -> 1.0
+                       (lastSample:_) -> ampMagnitude lastSample
+                (current:_) ->
+                  case takeWhile (\s -> ampTime s < t) env of
+                    [] -> ampMagnitude current
+                    prevSamples ->
+                      let prev = last prevSamples
+                          -- Linear interpolation
+                          alpha = (t - ampTime prev) / (ampTime current - ampTime prev)
+                      in ampMagnitude prev + alpha * (ampMagnitude current - ampMagnitude prev)
+
+            origAmp = findEnvelope origEnv
+            vocodedAmp = findEnvelope vocodedEnv
+
+            -- Calculate ratio, avoiding division by zero
+            ratio = if vocodedAmp > 1e-6
+                    then origAmp / vocodedAmp
+                    else 1.0
+        in ratio
+
+      -- Apply ratio to each sample
+      applyToSample i sample =
+        let t = fromIntegral i / sr
+            ratio = getRatio t
+        in sample * ratio
+
+  in V.imap applyToSample samples
 
 -- | Apply pitch shift (simple resampling approach)
 -- For factor > 1.0, shifts pitch up; < 1.0 shifts down
