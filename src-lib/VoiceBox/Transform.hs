@@ -48,8 +48,8 @@ preDoll0Params = TransformParams
   , tpRecoveryTime    = 0.1     -- 100ms recovery between phrases
   , tpNoiseLevel      = 0.04    -- Subtle transition artifacts
   , tpPitchShift      = 1.25    -- Moderate pitch shift (still feminine)
-  , tpAutotuneAmount  = 0.7     -- Strong autotune effect (increased from 0.35)
-  , tpAutotuneSteps   = 60      -- Quantize to 60 Hz harmonics (ties to electromagnetic hum)
+  , tpAutotuneAmount  = 0.9     -- Very strong autotune effect (increased from 0.7)
+  , tpAutotuneSteps   = 120     -- Quantize to 120 Hz harmonics (larger steps = more robotic)
   }
 
 --------------------------------------------
@@ -64,37 +64,34 @@ transformAudio sampleRate = transformAudioWithParams sampleRate preDoll0Params
 transformAudioWithParams :: Int -> TransformParams -> V.Vector Double -> V.Vector Double
 transformAudioWithParams sampleRate params samples =
   let sr = fromIntegral sampleRate
-      -- Apply effects pipeline
-      samples1 = applyPitchShift (tpPitchShift params) samples  -- Pitch shift first
-      samples2 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) samples1  -- Then autotune
-      samples3 = applyBandwidthLimit sampleRate (tpBandwidthHz params) samples2
-      samples4 = injectHum sr (tpHumFreq params) (tpHumLevel params) samples3
-      samples5 = applyMetallicEffect sr (tpMetallicFreq params) (tpMetallicDepth params) samples4
-      samples6 = applyEnergyDecay (tpDecayRate params) samples5
-      samples7 = applyTransitionNoise (tpNoiseLevel params) samples6
-  in samples7
+      -- Apply effects pipeline (pitch shift now integrated into autotune)
+      samples1 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) (tpPitchShift params) samples
+      samples2 = applyBandwidthLimit sampleRate (tpBandwidthHz params) samples1
+      samples3 = injectHum sr (tpHumFreq params) (tpHumLevel params) samples2
+      samples4 = applyMetallicEffect sr (tpMetallicFreq params) (tpMetallicDepth params) samples3
+      samples5 = applyEnergyDecay (tpDecayRate params) samples4
+      samples6 = applyTransitionNoise (tpNoiseLevel params) samples5
+  in samples6
 
 -- | Return named intermediate stages of the transformation pipeline
 transformStages :: Int -> TransformParams -> V.Vector Double -> [(String, V.Vector Double)]
 transformStages sampleRate params samples =
   let sr = fromIntegral sampleRate
       s0 = samples
-      s1 = applyPitchShift (tpPitchShift params) s0
-      s2 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) s1
-      s3 = applyBandwidthLimit sampleRate (tpBandwidthHz params) s2
-      s4 = injectHum sr (tpHumFreq params) (tpHumLevel params) s3
-      s5 = applyMetallicEffect sr (tpMetallicFreq params) (tpMetallicDepth params) s4
-      s6 = applyEnergyDecay (tpDecayRate params) s5
-      s7 = applyTransitionNoise (tpNoiseLevel params) s6
+      s1 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) (tpPitchShift params) s0
+      s2 = applyBandwidthLimit sampleRate (tpBandwidthHz params) s1
+      s3 = injectHum sr (tpHumFreq params) (tpHumLevel params) s2
+      s4 = applyMetallicEffect sr (tpMetallicFreq params) (tpMetallicDepth params) s3
+      s5 = applyEnergyDecay (tpDecayRate params) s4
+      s6 = applyTransitionNoise (tpNoiseLevel params) s5
   in [ ("00_original", s0)
-     , ("01_pitch", s1)
-     , ("02_autotune", s2)
-     , ("03_bandwidth", s3)
-     , ("04_hum", s4)
-     , ("05_metallic", s5)
-     , ("06_decay", s6)
-     , ("07_transition", s7)
-     , ("08_final", s7)
+     , ("01_autotune_pitch", s1)  -- Combined pitch shift + autotune
+     , ("02_bandwidth", s2)
+     , ("03_hum", s3)
+     , ("04_metallic", s4)
+     , ("05_decay", s5)
+     , ("06_transition", s6)
+     , ("07_final", s6)
      ]
 
 --------------------------------------------
@@ -105,19 +102,25 @@ transformStages sampleRate params samples =
 -- Simulates hardware constraint of ~4kHz resonator system
 applyBandwidthLimit :: Int -> Double -> V.Vector Double -> V.Vector Double
 applyBandwidthLimit sampleRate cutoffHz samples =
-  -- Simple FFT-based lowpass filter
+  -- FFT-based lowpass filter with smooth rolloff to reduce ringing
   let n = V.length samples
       -- Convert to frequency domain
       complexSamples = V.map (:+ 0) samples
       spectrum = fftForward complexSamples
 
-      -- Zero out frequencies above cutoff
+      -- Smooth rolloff to prevent ringing artifacts
       sr = fromIntegral sampleRate
+      transitionWidth = 500.0  -- Hz - width of rolloff region
       filtered = V.imap (\i val ->
-        let freq = fromIntegral i * sr / fromIntegral n
-        in  if freq <= cutoffHz || freq >= (sr - cutoffHz)
-            then val
-            else 0 :+ 0) spectrum
+        let freq = if i <= n `div` 2
+                   then fromIntegral i * sr / fromIntegral n
+                   else sr - fromIntegral (n - i) * sr / fromIntegral n
+            -- Smooth transition using cosine rolloff
+            attenuation
+              | freq <= cutoffHz = 1.0
+              | freq >= cutoffHz + transitionWidth = 0.0
+              | otherwise = (1.0 + cos (pi * (freq - cutoffHz) / transitionWidth)) / 2.0
+        in val * (attenuation :+ 0)) spectrum
 
       -- Convert back to time domain
       result = fftInverse filtered
@@ -206,8 +209,9 @@ applyPitchShift factor samples
 -- | Apply autotune effect (quantize pitch to harmonics)
 -- Amount controls strength: 0.0 = no effect, 1.0 = full quantization
 -- Steps is the fundamental frequency (Hz) - pitch snaps to multiples of this (e.g., 60 Hz)
-applyAutotune :: Int -> Double -> Int -> V.Vector Double -> V.Vector Double
-applyAutotune sampleRate amount fundamentalHz samples
+-- PitchShift is applied before quantization (e.g., 1.25 to shift up)
+applyAutotune :: Int -> Double -> Int -> Double -> V.Vector Double -> V.Vector Double
+applyAutotune sampleRate amount fundamentalHz pitchShift samples
   | amount <= 0.0 = samples
   | otherwise =
       -- Simple autotune: detect pitch via zero-crossings and quantize
@@ -226,8 +230,10 @@ applyAutotune sampleRate amount fundamentalHz samples
                 -- Detect pitch via zero crossings (crude but fast)
                 crossings = countZeroCrossings window
                 estimatedFreq = fromIntegral (crossings * sampleRate) / (2.0 * fromIntegral (V.length window))
+                -- Apply pitch shift before quantization
+                targetFreq = estimatedFreq * pitchShift
                 -- Quantize to nearest multiple of fundamental frequency
-                harmonic = round (estimatedFreq / fundamental) :: Int
+                harmonic = round (targetFreq / fundamental) :: Int
                 quantizedFreq = fundamental * fromIntegral (max 1 harmonic)  -- At least 1x fundamental
                 shiftRatio = if estimatedFreq > 20 then quantizedFreq / estimatedFreq else 1.0
                 -- Blend between original and quantized
