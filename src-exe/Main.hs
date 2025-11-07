@@ -182,7 +182,7 @@ transformWavFile optsValues path = do
           mapM_ (\(name, vec) -> writeWaveFile (base ++ "_" ++ name ++ ".wav") sampleRate vec) stages
           putStrLn $ "Wrote " ++ show (length stages) ++ " debug stage files with base: " ++ base
           -- Also write the final stage to the requested output path
-          lookup "08_final" stages `forM_` writeWaveFile outputFile sampleRate
+          lookup "99_final" stages `forM_` writeWaveFile outputFile sampleRate
           putStrLn "Debug transformation complete."
           exitSuccess
     else do

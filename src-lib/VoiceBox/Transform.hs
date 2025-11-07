@@ -84,7 +84,7 @@ transformStages sampleRate params samples =
      , ("02_speedup", s2)  -- 2x speedup (chipmunk effect) from original
      , ("03_vocoder_speedup", s3)  -- Vocoder → speedup (FINAL - clean harmonics then pitch shift)
      , ("04_speedup_vocoder", s4)  -- Speedup → vocoder (less intelligible)
-     , ("05_final", s3)  -- Using vocoder → speedup
+     , ("99_final", s3)  -- Using vocoder → speedup
      ]
 
 --------------------------------------------
