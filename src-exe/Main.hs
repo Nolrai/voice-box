@@ -11,9 +11,10 @@ import System.FilePath (dropExtension, takeExtension, (<.>))
 import Voice.IPA
 import Voice.Synth
 import Voice.Util (writeFileUtf8)
-import VoiceBox.Analyze (analyzeAudio)
+import VoiceBox.Analyze (analyzeAudio, readWaveFile, writeWaveFile)
 import VoiceBox.Transform qualified as Transform
 import VoiceBox.Types qualified as VB
+import Data.Foldable (forM_)
 
 -- | Command-line options
 data Options = Options
@@ -59,7 +60,7 @@ optionsParser =
     <*> switch
       ( long "debug"
           <> short 'd'
-          <> help "Write debug output to INPUT.debug"
+          <> help "Write debug output (with --transform: intermediate stage WAV files)"
       )
     <*> switch
       ( long "analyze"
@@ -166,18 +167,36 @@ transformWavFile optsValues path = do
 
   -- Determine output path
   let outputFile = fromMaybe (dropExtension path ++ "_predoll0.wav") (optOutputFile optsValues)
+  -- In debug mode, write intermediate stage files for isolation
+  if optDebug optsValues
+    then do
+      audioResult <- readWaveFile path
+      case audioResult of
+        Left err -> do
+          putStrLn $ "Error reading WAV file for debug transform: " ++ err
+          exitFailure
+        Right (samples, sampleRate) -> do
+          let stages = Transform.transformStages sampleRate Transform.preDoll0Params samples
+              base = dropExtension outputFile
+          -- Write each stage to its own WAV file
+          mapM_ (\(name, vec) -> writeWaveFile (base ++ "_" ++ name ++ ".wav") sampleRate vec) stages
+          putStrLn $ "Wrote " ++ show (length stages) ++ " debug stage files with base: " ++ base
+          -- Also write the final stage to the requested output path
+          lookup "08_final" stages `forM_` writeWaveFile outputFile sampleRate
+          putStrLn "Debug transformation complete."
+          exitSuccess
+    else do
+      -- Use the helper from VoiceBox.Transform (direct WAV -> WAV)
+      maybeErr <- Transform.transformWavFile path outputFile
 
-  -- Use the helper from VoiceBox.Transform (direct WAV -> WAV)
-  maybeErr <- Transform.transformWavFile path outputFile
-
-  case maybeErr of
-    Just err -> do
-      putStrLn $ "Error transforming WAV file: " ++ err
-      exitFailure
-    Nothing -> do
-      putStrLn $ "Saved transformed audio to: " ++ outputFile
-      putStrLn "Transformation complete!"
-      exitSuccess
+      case maybeErr of
+        Just err -> do
+          putStrLn $ "Error transforming WAV file: " ++ err
+          exitFailure
+        Nothing -> do
+          putStrLn $ "Saved transformed audio to: " ++ outputFile
+          putStrLn "Transformation complete!"
+          exitSuccess
 -- | Synthesize audio from a text file containing IPA/romanized input
 
 synthesizeFromText :: Options -> FilePath -> IO ()
