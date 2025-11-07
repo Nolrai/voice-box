@@ -22,35 +22,19 @@ import VoiceBox.Types (AmplitudeSample(..), defaultAnalysisParams)
 
 -- | Parameters for audio transformation effects
 data TransformParams = TransformParams
-  { tpBandwidthHz       :: Double -- ^ Maximum frequency (Hz) - typically ~4000 for PreDoll-0
-  , tpHumFreq           :: Double -- ^ Power hum frequency (Hz) - typically 60
-  , tpHumLevel          :: Double -- ^ Hum amplitude (0.0-1.0)
-  , tpMetallicDepth     :: Double -- ^ Ring modulation depth (0.0-1.0)
-  , tpMetallicFreq      :: Double -- ^ Ring modulation frequency (Hz)
-  , tpDecayRate         :: Double -- ^ Energy decay rate (exponential factor)
-  , tpRecoveryTime      :: Double -- ^ Recovery time between segments (seconds)
-  , tpNoiseLevel        :: Double -- ^ Transition noise level (0.0-1.0)
-  , tpPitchShift        :: Double -- ^ Pitch shift factor (1.0 = no change, 1.5 = up, 0.67 = down)
+  { tpAutotuneSteps     :: Int    -- ^ Fundamental frequency (Hz) - pitch snaps to multiples (e.g., 120 for harmonic vocoder)
   , tpAutotuneAmount    :: Double -- ^ Autotune quantization strength (0.0-1.0)
-  , tpAutotuneSteps     :: Int    -- ^ Fundamental frequency (Hz) - pitch snaps to multiples (e.g., 60 for power line harmonics)
+  , tpPitchShift        :: Double -- ^ Pitch shift factor (1.0 = no change, 1.25 = up, 0.8 = down)
   } deriving (Show, Eq)
 
 -- | PreDoll-0 speech transformation parameters
--- Based on electromagnetic resonance constraints and ~4kHz bandwidth
+-- Harmonic vocoder with 240 Hz fundamental
 -- Tuned for synthetic/artificial child-like feminine voice
 preDoll0Params :: TransformParams
 preDoll0Params = TransformParams
-  { tpBandwidthHz     = 3500.0  -- Less restrictive bandwidth
-  , tpHumFreq         = 60.0    -- 60 Hz mains hum (North America)
-  , tpHumLevel        = 0.03    -- Reduced electronic hum
-  , tpMetallicDepth   = 0.5     -- Resonant cavity boost (now using filter, not ring mod)
-  , tpMetallicFreq    = 1000.0  -- Cavity resonance frequency
-  , tpDecayRate       = 0.95    -- Gradual energy decay
-  , tpRecoveryTime    = 0.1     -- 100ms recovery between phrases
-  , tpNoiseLevel      = 0.04    -- Subtle transition artifacts
-  , tpPitchShift      = 1.25    -- Moderate pitch shift (still feminine)
-  , tpAutotuneAmount  = 0.9     -- Very strong autotune effect (increased from 0.7)
-  , tpAutotuneSteps   = 120     -- Quantize to 120 Hz harmonics (larger steps = more robotic)
+  { tpAutotuneSteps   = 240     -- 240 Hz fundamental (harmonics 1-20 full, 21-25 fade, >25 drop = 240-6000 Hz)
+  , tpAutotuneAmount  = 0.9     -- Very strong autotune effect
+  , tpPitchShift      = 3.0     -- 3x pitch shift → 360 Hz (child voice range)
   }
 
 --------------------------------------------
@@ -64,118 +48,48 @@ transformAudio sampleRate = transformAudioWithParams sampleRate preDoll0Params
 -- | Transform audio with custom parameters
 transformAudioWithParams :: Int -> TransformParams -> V.Vector Double -> V.Vector Double
 transformAudioWithParams sampleRate params samples =
-  let -- Apply harmonic vocoder first with envelope preservation and bandwidth rolloff
+  let -- Vocoder → speedup (cleans signal first, then pitch shifts)
       fundamental = fromIntegral (tpAutotuneSteps params)
+      speedupFactor = 2.0
       samples0 = applyHarmonicVocoder sampleRate fundamental samples
-      -- Then apply autotune for intelligibility
-      samples1 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) (tpPitchShift params) samples0
+      samples1 = applySimpleSpeedup speedupFactor samples0
   in samples1
+
+-- | Simple speedup by resampling - duration shrinks, pitch rises
+applySimpleSpeedup :: Double -> V.Vector Double -> V.Vector Double
+applySimpleSpeedup factor samples =
+  let oldLen = V.length samples
+      newLen = floor (fromIntegral oldLen / factor)
+      getSample i =
+        let srcIdx = fromIntegral i * factor
+            idx1 = floor srcIdx
+            idx2 = min (oldLen - 1) (idx1 + 1)
+            frac = srcIdx - fromIntegral idx1
+        in if idx1 >= oldLen then 0
+           else (samples V.! idx1) * (1 - frac) + (samples V.! idx2) * frac
+  in V.generate newLen getSample
 
 -- | Return named intermediate stages of the transformation pipeline
 transformStages :: Int -> TransformParams -> V.Vector Double -> [(String, V.Vector Double)]
 transformStages sampleRate params samples =
   let fundamental = fromIntegral (tpAutotuneSteps params)
+      speedupFactor = 2.0
       s0 = samples
       s1 = applyHarmonicVocoder sampleRate fundamental s0
-      s2 = applyAutotune sampleRate (tpAutotuneAmount params) (tpAutotuneSteps params) (tpPitchShift params) s1
+      s2 = applySimpleSpeedup speedupFactor s0  -- Speedup from original
+      s3 = applySimpleSpeedup speedupFactor s1  -- Vocoder → Speedup
+      s4 = applyHarmonicVocoder sampleRate fundamental s2  -- Speedup → Vocoder
   in [ ("00_original", s0)
-     , ("01_vocoder", s1)  -- Harmonic vocoder with envelope + bandwidth rolloff (120Hz fundamental: harmonics 1-20 full, 21-25 fade, >25 drop)
-     , ("02_autotune", s2)  -- Pitch shift + autotune (improves intelligibility)
-     , ("03_final", s2)
+     , ("01_vocoder", s1)  -- Harmonic vocoder (60Hz detection, drop <240Hz, rolloff 3-4kHz)
+     , ("02_speedup", s2)  -- 2x speedup (chipmunk effect) from original
+     , ("03_vocoder_speedup", s3)  -- Vocoder → speedup (FINAL - clean harmonics then pitch shift)
+     , ("04_speedup_vocoder", s4)  -- Speedup → vocoder (less intelligible)
+     , ("05_final", s3)  -- Using vocoder → speedup
      ]
 
 --------------------------------------------
 -- | Effect Implementations
 --------------------------------------------
-
--- | Apply bandwidth limiting via lowpass filter
--- Simulates hardware constraint of ~4kHz resonator system
-applyBandwidthLimit :: Int -> Double -> V.Vector Double -> V.Vector Double
-applyBandwidthLimit sampleRate cutoffHz samples =
-  -- FFT-based lowpass filter with smooth rolloff to reduce ringing
-  let n = V.length samples
-      -- Convert to frequency domain
-      complexSamples = V.map (:+ 0) samples
-      spectrum = fftForward complexSamples
-
-      -- Smooth rolloff to prevent ringing artifacts
-      sr = fromIntegral sampleRate
-      transitionWidth = 500.0  -- Hz - width of rolloff region
-      filtered = V.imap (\i val ->
-        let freq = if i <= n `div` 2
-                   then fromIntegral i * sr / fromIntegral n
-                   else sr - fromIntegral (n - i) * sr / fromIntegral n
-            -- Smooth transition using cosine rolloff
-            attenuation
-              | freq <= cutoffHz = 1.0
-              | freq >= cutoffHz + transitionWidth = 0.0
-              | otherwise = (1.0 + cos (pi * (freq - cutoffHz) / transitionWidth)) / 2.0
-        in val * (attenuation :+ 0)) spectrum
-
-      -- Convert back to time domain
-      result = fftInverse filtered
-  in V.map (\(r :+ _) -> r) result
-
--- | Inject 60 Hz electromagnetic hum
--- Simulates power system interference in Doll hardware
-injectHum :: Double -> Double -> Double -> V.Vector Double -> V.Vector Double
-injectHum sampleRate humFreq level = V.imap (\i s ->
-    let t = fromIntegral i / sampleRate
-        hum = level * sin (2 * pi * humFreq * t)
-    in s + hum)
-
--- | Apply metallic/harmonic effect via resonant filtering
--- Simulates electromagnetic cavity resonance by boosting a narrow frequency band
-applyMetallicEffect :: Double -> Double -> Double -> V.Vector Double -> V.Vector Double
-applyMetallicEffect sampleRate resonantFreq depth samples =
-  -- Use FFT to boost frequencies around the resonant frequency
-  let n = V.length samples
-      complexSamples = V.map (:+ 0) samples
-      spectrum = fftForward complexSamples
-
-      sr = sampleRate
-      -- Create a resonance curve (Gaussian-like boost around resonantFreq)
-      bandwidth = 200.0  -- Width of the resonance peak
-      boosted = V.imap (\i val ->
-        let freq = fromIntegral i * sr / fromIntegral n
-            -- Gaussian-like boost centered at resonantFreq
-            distance = abs (freq - resonantFreq)
-            boost = 1.0 + depth * exp (negate (distance * distance) / (2 * bandwidth * bandwidth))
-        in val * (boost :+ 0)) spectrum
-
-      -- Convert back to time domain
-      result = fftInverse boosted
-  in V.map (\(r :+ _) -> r) result
-
--- | Apply energy decay envelope
--- Simulates gradual power loss during speech
--- TODO: Make this segment-based rather than global
-applyEnergyDecay :: Double -> V.Vector Double -> V.Vector Double
-applyEnergyDecay _decayRate samples =
-  -- DISABLED for now - the global exponential decay kills the signal
-  -- This should be applied per speech segment, not to the entire audio
-  -- For now, just pass through unchanged
-  samples
-  -- Original (broken) implementation:
-  -- let modulate i s = (_decayRate ** fromIntegral i) * s
-  -- in V.imap modulate samples
-
--- | Add noise during transitions
--- Simulates chaotic emission between stable resonances
-applyTransitionNoise :: Double -> V.Vector Double -> V.Vector Double
-applyTransitionNoise level samples =
-  -- Detect transitions by looking at amplitude changes
-  -- Add noise where change is rapid
-  let deltas = V.zipWith (\a b -> abs (b - a)) samples (V.tail samples V.++ V.singleton 0)
-      threshold = 0.01 -- Threshold for detecting transitions
-  in V.zipWith (\s delta ->
-    if delta > threshold
-    then s + (pseudoRandom s * level)  -- Add noise at transitions
-    else s) samples deltas
-  where
-    -- Simple deterministic "noise" based on sample value
-    -- In production, use a proper PRNG
-    pseudoRandom x = sin (x * 12345.6789) * 0.5
 
 -- | Harmonic vocoder - keeps only exact harmonics of fundamental frequency
 -- Creates pure synthetic voice by removing all non-harmonic content
@@ -193,24 +107,27 @@ applyHarmonicVocoder sampleRate fundamentalHz samples =
       spectrum = fftForward complexSamples
 
       sr = fromIntegral sampleRate
+      detectFundamental = 60.0  -- Detect harmonics of 60Hz for finer resolution
+      minFreq = fundamentalHz   -- Drop everything below this (e.g., 240Hz)
       tolerance = 5.0  -- Hz - bandwidth around each harmonic to keep
 
-      -- Keep only frequencies near harmonics of fundamental, with bandwidth rolloff
+      -- Keep only frequencies near harmonics of 60Hz, but drop low frequencies
       filtered = V.imap (\i val ->
         let freq = if i <= n `div` 2
                    then fromIntegral i * sr / fromIntegral n
                    else sr - fromIntegral (n - i) * sr / fromIntegral n
-            -- Find nearest harmonic
-            harmonic = round (freq / fundamentalHz) :: Int
-            harmonicFreq = fundamentalHz * fromIntegral harmonic
+            -- Find nearest 60Hz harmonic
+            harmonic = round (freq / detectFundamental) :: Int
+            harmonicFreq = detectFundamental * fromIntegral harmonic
             distance = abs (freq - harmonicFreq)
 
-            -- Bandwidth rolloff: full strength up to harmonic 20, fade 21-25, drop >25
-            -- (120Hz fundamental: harmonic 20 = 2400Hz, harmonic 25 = 3000Hz)
+            -- Drop frequencies below minFreq (e.g., 240Hz)
+            -- Bandwidth rolloff at high end: full strength up to 3000Hz, fade to 4000Hz, drop >4000Hz
             harmonicAttenuation
-              | harmonic <= 20 = 1.0
-              | harmonic >= 25 = 0.0
-              | otherwise = fromIntegral (25 - harmonic) / 5.0  -- Linear fade 21→25
+              | freq < minFreq = 0.0  -- Drop low frequencies
+              | freq <= 3000.0 = 1.0  -- Full strength up to 3kHz
+              | freq >= 4000.0 = 0.0  -- Drop above 4kHz
+              | otherwise = (4000.0 - freq) / 1000.0  -- Linear fade 3kHz→4kHz
 
         in if distance <= tolerance && harmonic > 0
            then val * (harmonicAttenuation :+ 0)

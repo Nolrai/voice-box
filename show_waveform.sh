@@ -10,5 +10,5 @@ t = np.arange(len(data))/sr
 
 plt.figure(figsize=(10,6))
 plt.subplot(2,1,1); plt.plot(t, data); plt.title('waveform'); plt.xlabel('s')
-plt.subplot(2,1,2); plt.specgram(data, NFFT=1024, Fs=sr, noverlap=512, cmap='magma'); plt.title('spectrogram')
+plt.subplot(2,1,2); plt.specgram(data, NFFT=1024, Fs=sr, noverlap=512, cmap='magma'); plt.title('spectrogram'); plt.ylim(0, 4000)
 plt.tight_layout(); plt.show()
