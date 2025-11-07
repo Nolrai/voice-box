@@ -76,6 +76,7 @@ library
         VoiceBox.Analyze
         VoiceBox.Synthesize
         VoiceBox.Pipeline
+        VoiceBox.Transform
 
     -- Modules included in this library but not exported.
     other-modules:
@@ -133,6 +134,7 @@ executable voice-box
         process,
         text,
         optparse-applicative >= 0.18,
+        vector >= 0.13,
 
         voice-box,
 

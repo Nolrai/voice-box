@@ -12,6 +12,7 @@ import Voice.IPA
 import Voice.Synth
 import Voice.Util (writeFileUtf8)
 import VoiceBox.Analyze (analyzeAudio)
+import VoiceBox.Transform qualified as Transform
 import VoiceBox.Types qualified as VB
 
 -- | Command-line options
@@ -23,7 +24,9 @@ data Options = Options
     -- | Force analysis mode (extract features from WAV)
     optAnalyze :: Bool,
     -- | Force synthesis mode (generate audio from text)
-    optSynthesize :: Bool
+    optSynthesize :: Bool,
+    -- | Apply PreDoll-0 transformation to WAV input
+    optTransform :: Bool
   }
   deriving (Show)
 
@@ -68,6 +71,11 @@ optionsParser =
           <> short 's'
           <> help "Synthesize audio from text"
       )
+    <*> switch
+      ( long "transform"
+          <> short 't'
+          <> help "Apply PreDoll-0 voice transformation to WAV input"
+      )
 
 -- | Options with help/description
 opts :: ParserInfo Options
@@ -91,13 +99,18 @@ opts =
 main :: IO ()
 main = execParser opts >>= processFile
 
--- | Main dispatcher: routes to analysis or synthesis based on flags/extension
+-- | Main dispatcher: routes to analysis, synthesis, or transformation based on flags/extension
 processFile :: Options -> IO ()
 processFile optsValues = do
   let path = optInputFile optsValues
   let ext = takeExtension path
 
-  -- Decision logic:
+  -- Check for transform mode first
+  when (optTransform optsValues) $ do
+    transformWavFile optsValues path
+    exitSuccess
+
+  -- Decision logic for analysis vs synthesis:
   -- 1. Error if both --analyze and --synthesize are specified
   -- 2. Use explicit flag if only one is present
   -- 3. Auto-detect from file extension if neither flag is present
@@ -146,7 +159,27 @@ analyzeWavFile optsValues path = do
 
   exitSuccess
 
+-- | Transform a WAV file with PreDoll-0 voice effects
+transformWavFile :: Options -> FilePath -> IO ()
+transformWavFile optsValues path = do
+  putStrLn $ "Applying PreDoll-0 transformation to: " ++ path
+
+  -- Determine output path
+  let outputFile = fromMaybe (dropExtension path ++ "_predoll0.wav") (optOutputFile optsValues)
+
+  -- Use the helper from VoiceBox.Transform (direct WAV -> WAV)
+  maybeErr <- Transform.transformWavFile path outputFile
+
+  case maybeErr of
+    Just err -> do
+      putStrLn $ "Error transforming WAV file: " ++ err
+      exitFailure
+    Nothing -> do
+      putStrLn $ "Saved transformed audio to: " ++ outputFile
+      putStrLn "Transformation complete!"
+      exitSuccess
 -- | Synthesize audio from a text file containing IPA/romanized input
+
 synthesizeFromText :: Options -> FilePath -> IO ()
 synthesizeFromText optsValues path = do
   -- parseFile returns [[Foot]] - a list of utterances, each containing feet

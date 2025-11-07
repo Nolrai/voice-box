@@ -18,6 +18,7 @@ module VoiceBox.Analyze
     extractEnvelope,
     extractFormants,
     readWaveFile,
+    writeWaveFile,
   )
 where
 
@@ -70,6 +71,23 @@ waveSamplesToDouble wave = do
   let maxVal = 32768.0 -- 2^15 for 16-bit audio
   let normalized = map (\s -> fromIntegral s / maxVal) firstChannel
   pure $ V.fromList normalized
+
+-- | Write normalized Double samples to a WAVE file
+writeWaveFile :: FilePath -> Int -> V.Vector Double -> IO ()
+writeWaveFile path sampleRate samples = do
+  let header =
+        WAVE.WAVEHeader
+          { WAVE.waveNumChannels = 1,
+            WAVE.waveFrameRate = fromIntegral sampleRate,
+            WAVE.waveBitsPerSample = 16,
+            WAVE.waveFrames = Just (V.length samples)
+          }
+      -- Convert Double [-1.0, 1.0] to Int32 (WAVESample)
+      maxVal = 32768.0 -- 2^15 for 16-bit audio
+      toInt32 x = round (x * maxVal) :: WAVE.WAVESample
+      samplesList = V.toList $ V.map toInt32 samples
+      wave = WAVE.WAVE header [[s] | s <- samplesList]
+  WAVE.putWAVEFile path wave
 
 --------------------------------------------
 
