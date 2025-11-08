@@ -192,4 +192,3 @@ executable test-audio
 
     -- Directories containing source files.
     hs-source-dirs:   test
-

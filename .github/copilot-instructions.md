@@ -4,7 +4,7 @@ This repository is a small Haskell synthesis project named `voice-box`. It conta
 1) a library (`src-lib`) with the core parsing and synthesis logic under `Voice/`,
 2) stub modules for audio analysis under `VoiceBox/` (future feature extraction from WAV files),
 3) an executable (`src-exe/Main.hs`) that ties the library to CLI behavior, and
-4) a small test suite (`src-test`) plus example test inputs in `test/`.
+4) a small test suite (`src-test`) plus example test inputs in `test-data/`.
 
 Key modules to read first:
 - `src-lib/Voice/IPA.hs` — top-level parsing glue
@@ -41,7 +41,7 @@ Project-specific conventions & warnings
 Parsing & testing notes (examples from repo)
 
 - Parsers use Megaparsec — look at `src-lib/Voice/IPA/*.hs` for patterns (combinators, error handling).
-- There are golden/test inputs under `test/golden/parse_golden.txt` and sample inputs in `test/misc/`.
+- There are golden/test inputs under `test-data/golden/parse_golden.txt` and sample inputs in `test-data/misc/`.
   Use these files when writing parser regressions.
 
 Integration points & external dependencies
@@ -53,7 +53,7 @@ Integration points & external dependencies
 
 Small coding contract for contributors/agents
 
-- Inputs: UTF-8 romanized text sample files under `test/misc` or the CLI input parsed by `Voice.IPA`.
+- Inputs: UTF-8 romanized text sample files under `test-data/misc` or the CLI input parsed by `Voice.IPA`.
 - Outputs: typed parse trees (`Voice.IPA.Types`) and synthesis-ready structures (`Voice.Types`), and audio via `lambdasound`.
 - Error modes: parsers should return informative Megaparsec errors; synthesis should validate required fields.
 
@@ -61,7 +61,7 @@ Useful quick references
 
 - Main entrypoints: `src-exe/Main.hs`, `src-lib/Voice/IPA.hs`, `src-lib/Voice/Synth.hs`.
 - Cabal file: `voice-box.cabal` — update modules/build-depends/language there.
-- Tests & examples: `src-test/`, `test/golden/`, `test/misc/`.
+- Tests & examples: `src-test/`, `test-data/golden/`, `test-data/misc/`.
 - Formatting: there is an `ormolu` file in the repo root (use if present to format Haskell sources).
 
 If something seems missing

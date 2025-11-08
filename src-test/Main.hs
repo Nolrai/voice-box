@@ -9,13 +9,13 @@ import Voice.IPA.Types qualified as PR
 -- Golden test:
 -- - reads test input at ../story_predoll-0.txt (project root)
 -- - runs the parser from the library
--- - compares the `show` output against test/golden/parse_golden.txt
+-- - compares the `show` output against test-data/golden/parse_golden.txt
 -- If the golden file does not exist it is created and the test fails so you can
 -- inspect and accept the new golden.
 main :: IO ()
 main = do
-  let inputPath = "test/story_predoll-0.txt"
-      goldenPath = "test/golden/parse_golden.txt"
+  let inputPath = "test-data/story_predoll-0.txt"
+      goldenPath = "test-data/golden/parse_golden.txt"
 
   parsed <- PD.parseFile inputPath
   let actual = prettyPrint parsed

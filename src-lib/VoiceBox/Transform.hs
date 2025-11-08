@@ -43,15 +43,15 @@ preDoll0Params = TransformParams
 
 -- | Transform audio with default PreDoll-0 parameters
 transformAudio :: Int -> V.Vector Double -> V.Vector Double
-transformAudio sampleRate = transformAudioWithParams sampleRate preDoll0Params
+transformAudio sampleRate = transformAudioWithParams sampleRate preDoll0Params defaultVocoderToggles
 
 -- | Transform audio with custom parameters
-transformAudioWithParams :: Int -> TransformParams -> V.Vector Double -> V.Vector Double
-transformAudioWithParams sampleRate params samples =
+transformAudioWithParams :: Int -> TransformParams -> VocoderToggles -> V.Vector Double -> V.Vector Double
+transformAudioWithParams sampleRate params toggles samples =
   let -- Vocoder → speedup (cleans signal first, then pitch shifts)
       fundamental = fromIntegral (tpAutotuneSteps params)
       speedupFactor = 2.0
-      samples0 = applyHarmonicVocoder sampleRate fundamental samples
+      samples0 = applyHarmonicVocoder sampleRate fundamental toggles samples
       samples1 = applySimpleSpeedup speedupFactor samples0
   in samples1
 
@@ -72,78 +72,180 @@ applySimpleSpeedup factor samples =
 -- | Return named intermediate stages of the transformation pipeline
 transformStages :: Int -> TransformParams -> V.Vector Double -> [(String, V.Vector Double)]
 transformStages sampleRate params samples =
+  let original = samples
+      just_speedup =
+        let speedupFactor = 2.0
+        in applySimpleSpeedup speedupFactor original
+  in [("00_original", samples), ("01_speedup", just_speedup)] ++ do
   let fundamental = fromIntegral (tpAutotuneSteps params)
       speedupFactor = 2.0
-      s0 = samples
-      s1 = applyHarmonicVocoder sampleRate fundamental s0
-      s2 = applySimpleSpeedup speedupFactor s0  -- Speedup from original
-      s3 = applySimpleSpeedup speedupFactor s1  -- Vocoder → Speedup
-      s4 = applyHarmonicVocoder sampleRate fundamental s2  -- Speedup → Vocoder
-  in [ ("00_original", s0)
-     , ("01_vocoder", s1)  -- Harmonic vocoder (60Hz detection, drop <240Hz, rolloff 3-4kHz)
-     , ("02_speedup", s2)  -- 2x speedup (chipmunk effect) from original
-     , ("03_vocoder_speedup", s3)  -- Vocoder → speedup (FINAL - clean harmonics then pitch shift)
-     , ("04_speedup_vocoder", s4)  -- Speedup → vocoder (less intelligible)
-     , ("99_final", s3)  -- Using vocoder → speedup
-     ]
+  let blist = [False, True]
+  toggles <- VocoderToggles <$> blist <*> blist <*> blist <*> blist <*> blist
+  let tag :: String = ('_':) $
+        (\ b -> if b then 'Y' else 'N')
+          <$> [ vtEnableSmooth toggles
+              , vtEnableSoftBand toggles
+              , vtEnableBlend toggles
+              , vtEnableWarp toggles
+              , vtEnableMix toggles
+              ]
+  let vocoded = applyHarmonicVocoder sampleRate fundamental toggles samples
+      vocodedThenSpeedUp = applySimpleSpeedup speedupFactor vocoded
+      speedupThenVocoded = applyHarmonicVocoder sampleRate fundamental toggles just_speedup
+  [ ( tag ++ "_02_vocoder", vocoded )
+    , ( tag ++ "_03_vocoder_speedup", vocodedThenSpeedUp )
+    , ( tag ++ "_04_speedup_vocoder", speedupThenVocoded )
+    ]
 
 --------------------------------------------
 -- | Effect Implementations
 --------------------------------------------
 
--- | Harmonic vocoder - keeps only exact harmonics of fundamental frequency
--- Creates pure synthetic voice by removing all non-harmonic content
--- Preserves vowel character at harmonic frequencies
--- Preserves amplitude envelope from original signal for natural dynamics
-applyHarmonicVocoder :: Int -> Double -> V.Vector Double -> V.Vector Double
-applyHarmonicVocoder sampleRate fundamentalHz samples =
-  let n = V.length samples
-      -- Extract envelope from original signal
-      analysisParams = defaultAnalysisParams
-      originalEnvelope = extractEnvelope sampleRate analysisParams samples
+-- | Detailed controls for spectral and mixing refinements
+data VocoderToggles = VocoderToggles
+  { vtEnableSmooth   :: Bool
+  , vtEnableSoftBand :: Bool
+  , vtEnableBlend    :: Bool
+  , vtEnableWarp     :: Bool
+  , vtEnableMix      :: Bool
+  } deriving (Show, Eq)
 
-      -- Apply vocoding
-      complexSamples = V.map (:+ 0) samples
-      spectrum = fftForward complexSamples
+data VocoderNumericParams = VocoderNumericParams
+  { vnpSmoothRadius :: Int
+  , vnpTolerance    :: Double
+  , vnpBlendCutoff  :: Double
+  , vnpBlendAmount  :: Double
+  , vnpWarpAlpha    :: Double
+  , vnpWetRatio     :: Double
+  } deriving (Show, Eq)
 
-      sr = fromIntegral sampleRate
-      detectFundamental = 60.0  -- Detect harmonics of 60Hz for finer resolution
-      minFreq = fundamentalHz   -- Drop everything below this (e.g., 240Hz)
-      tolerance = 5.0  -- Hz - bandwidth around each harmonic to keep
+-- | Default "PreDoll-0" style toggles
+defaultVocoderToggles :: VocoderToggles
+defaultVocoderToggles = VocoderToggles
+  { vtEnableSmooth   = True
+  , vtEnableSoftBand = True
+  , vtEnableBlend    = True
+  , vtEnableWarp     = True
+  , vtEnableMix      = True
+  }
 
-      -- Keep only frequencies near harmonics of 60Hz, but drop low frequencies
-      filtered = V.imap (\i val ->
-        let freq = if i <= n `div` 2
-                   then fromIntegral i * sr / fromIntegral n
-                   else sr - fromIntegral (n - i) * sr / fromIntegral n
-            -- Find nearest 60Hz harmonic
-            harmonic = round (freq / detectFundamental) :: Int
-            harmonicFreq = detectFundamental * fromIntegral harmonic
-            distance = abs (freq - harmonicFreq)
+-- | Default "PreDoll-0" numeric parameters
+defaultVocoderNumericParams :: VocoderNumericParams
+defaultVocoderNumericParams = VocoderNumericParams
+  { vnpSmoothRadius = 4
+  , vnpTolerance    = 8.0
+  , vnpBlendCutoff  = 800.0
+  , vnpBlendAmount  = 0.3
+  , vnpWarpAlpha    = 0.85
+  , vnpWetRatio     = 0.8
+  }
 
-            -- Drop frequencies below minFreq (e.g., 240Hz)
-            -- Bandwidth rolloff at high end: full strength up to 3000Hz, fade to 4000Hz, drop >4000Hz
-            harmonicAttenuation
-              | freq < minFreq = 0.0  -- Drop low frequencies
-              | freq <= 3000.0 = 1.0  -- Full strength up to 3kHz
-              | freq >= 4000.0 = 0.0  -- Drop above 4kHz
-              | otherwise = (4000.0 - freq) / 1000.0  -- Linear fade 3kHz→4kHz
+applyHarmonicVocoder :: Int -> Double -> VocoderToggles -> V.Vector Double -> V.Vector Double
+applyHarmonicVocoder sampleRate fundamentalHz
+    VocoderToggles
+      { vtEnableSmooth = enableSmooth
+      , vtEnableSoftBand = enableSoftBand
+      , vtEnableBlend = enableBlend
+      , vtEnableWarp = enableWarp
+      , vtEnableMix = enableMix
+    }
+    samples =
+  let
+    VocoderNumericParams
+      { vnpSmoothRadius = smoothRadius
+      , vnpTolerance = tolerance
+      , vnpBlendCutoff = blendCutoff
+      , vnpBlendAmount = blendAmount
+      , vnpWarpAlpha = warpAlpha
+      , vnpWetRatio = wetRatio} = defaultVocoderNumericParams
 
-        in if distance <= tolerance && harmonic > 0
-           then val * (harmonicAttenuation :+ 0)
-           else 0 :+ 0) spectrum
+    ------------------------------------------------------------
+    -- Core setup
+    n  = V.length samples
+    sr = fromIntegral sampleRate
+    detectFundamental = 60.0
+    minFreq = fundamentalHz
 
-      -- Convert back to time domain
-      result = fftInverse filtered
-      vocoded = V.map (\(r :+ _) -> r) result
+    analysisParams = defaultAnalysisParams
+    originalEnvelope = extractEnvelope sampleRate analysisParams samples
+    complexSamples = V.map (:+ 0) samples
+    spectrum0 = fftForward complexSamples
 
-      -- Extract envelope from vocoded signal
-      vocodedEnvelope = extractEnvelope sampleRate analysisParams vocoded
+    ------------------------------------------------------------
+    -- Optional spectral warping
+    warpIndex i alpha =
+      let x = fromIntegral i / fromIntegral n
+          warped = x ** alpha
+      in floor (warped * fromIntegral n)
 
-      -- Apply original envelope to vocoded signal
-      envelopeApplied = applyEnvelopeRatio sampleRate originalEnvelope vocodedEnvelope vocoded
+    spectrumWarped =
+      if enableWarp
+        then V.imap (\i _ -> spectrum0 V.! warpIndex i warpAlpha) spectrum0
+        else spectrum0
 
-  in envelopeApplied
+    ------------------------------------------------------------
+    -- Harmonic filtering with Gaussian tolerance
+    filtered = V.imap (\i val ->
+      let freq = if i <= n `div` 2
+                 then fromIntegral i * sr / fromIntegral n
+                 else sr - fromIntegral (n - i) * sr / fromIntegral n
+
+          harmonic = round (freq / detectFundamental) :: Int
+          harmonicFreq = detectFundamental * fromIntegral harmonic
+          distance = abs (freq - harmonicFreq)
+
+          bandWeight
+            | enableSoftBand = exp (- ((distance * distance) / (2 * tolerance * tolerance)))
+            | distance <= tolerance = 1
+            | otherwise = 0
+
+          harmonicAttenuation
+            | freq < minFreq  = 0.0
+            | freq <= 3000.0  = 1.0
+            | freq >= 4000.0  = 0.0
+            | otherwise       = (4000.0 - freq) / 1000.0
+      in val * (harmonicAttenuation * bandWeight :+ 0)
+      ) spectrumWarped
+
+    ------------------------------------------------------------
+    -- Spectral smoothing
+    smoothSpectrum radius spectrum =
+      let avg i =
+            let start = max 0 (i - radius)
+                end   = min (V.length spectrum - 1) (i + radius)
+                window = V.slice start (end - start + 1) spectrum
+                s = V.foldl' (+) 0 window
+            in s / (fromIntegral (V.length window) :+ 0)
+      in if enableSmooth
+          then V.imap (\i _ -> avg i) spectrum
+          else spectrum
+
+    smoothed = smoothSpectrum smoothRadius filtered
+
+    ------------------------------------------------------------
+    -- Low-frequency blend
+    blended = V.imap (\i val ->
+      let freq = if i <= n `div` 2
+                 then fromIntegral i * sr / fromIntegral n
+                 else sr - fromIntegral (n - i) * sr / fromIntegral n
+          blend = if enableBlend && freq < blendCutoff then blendAmount else 0.0
+      in val * (1 :+ 0) + (blend :+ 0) * (spectrum0 V.! i)
+      ) smoothed
+
+    ------------------------------------------------------------
+    -- Back to time domain
+    result = fftInverse blended
+    vocoded = V.map (\(r :+ _) -> r) result
+
+    vocodedEnvelope = extractEnvelope sampleRate analysisParams vocoded
+    envelopeApplied = applyEnvelopeRatio sampleRate originalEnvelope vocodedEnvelope vocoded
+
+    mixDryWet = V.zipWith (\d w -> (1 - wetRatio) * d + wetRatio * w)
+
+  in if enableMix
+       then mixDryWet samples envelopeApplied
+       else envelopeApplied
+
 
 -- | Apply envelope ratio from original to vocoded signal
 -- For each sample, interpolate between envelope points and multiply by ratio
