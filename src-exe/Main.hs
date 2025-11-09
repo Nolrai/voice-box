@@ -27,7 +27,9 @@ data Options = Options
     -- | Force synthesis mode (generate audio from text)
     optSynthesize :: Bool,
     -- | Apply PreDoll-0 transformation to WAV input
-    optTransform :: Bool
+    optTransform :: Bool,
+    -- | Batch render multiple toggle combinations
+    optBatchToggles :: Bool
   }
   deriving (Show)
 
@@ -76,6 +78,11 @@ optionsParser =
       ( long "transform"
           <> short 't'
           <> help "Apply PreDoll-0 voice transformation to WAV input"
+      )
+    <*> switch
+      ( long "batch-toggles"
+          <> short 'b'
+          <> help "Batch render multiple toggle combinations (with --transform)"
       )
 
 -- | Options with help/description
@@ -167,8 +174,46 @@ transformWavFile optsValues path = do
 
   -- Determine output path
   let outputFile = fromMaybe (dropExtension path ++ "_predoll0.wav") (optOutputFile optsValues)
+
+  -- Batch mode: render multiple toggle combinations
+  if optBatchToggles optsValues
+    then do
+      audioResult <- readWaveFile path
+      case audioResult of
+        Left err -> do
+          putStrLn $ "Error reading WAV file for batch render: " ++ err
+          exitFailure
+        Right (samples, sampleRate) -> do
+          let base = dropExtension outputFile
+              promisingTags =
+                [ ("YNY", Transform.VocoderToggles True False True)   -- SoftBand, Mix
+                , ("YNN", Transform.VocoderToggles True False False)  -- SoftBand only
+                , ("NNY", Transform.VocoderToggles False False True)  -- Mix only
+                , ("NNN", Transform.VocoderToggles False False False) -- baseline (Smooth only)
+                , ("YYY", Transform.VocoderToggles True True True)    -- SoftBand, Blend, Mix (for comparison)
+                , ("YYN", Transform.VocoderToggles True True False)   -- SoftBand, Blend
+                , ("NYY", Transform.VocoderToggles False True True)   -- Blend, Mix
+                , ("NYN", Transform.VocoderToggles False True False)  -- Blend only
+                ]
+              fundamental = fromIntegral $ Transform.tpAutotuneSteps Transform.preDoll0Params
+
+          putStrLn $ "\nRendering " ++ show (length promisingTags) ++ " toggle combinations...\n"
+
+          forM_ promisingTags $ \(tag, toggles) -> do
+            let vocoded = Transform.applyHarmonicVocoder sampleRate fundamental toggles samples
+                speedupFactor = 2.0
+                final = Transform.applySimpleSpeedup speedupFactor vocoded
+                vocoderPath = base ++ "__" ++ tag ++ "_02_vocoder.wav"
+                finalPath = base ++ "__" ++ tag ++ "_03_vocoder_speedup.wav"
+
+            putStrLn $ "  Rendering " ++ tag ++ "..."
+            writeWaveFile vocoderPath sampleRate vocoded
+            writeWaveFile finalPath sampleRate final
+
+          putStrLn "\nBatch render complete!"
+          exitSuccess
   -- In debug mode, write intermediate stage files for isolation
-  if optDebug optsValues
+  else if optDebug optsValues
     then do
       audioResult <- readWaveFile path
       case audioResult of

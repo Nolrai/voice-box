@@ -1,0 +1,1 @@
+./rate-vocoder-files.hs "YYNYN" "YYNNY" "YNNYY" "NYNYY" "YYNNN" "YNNNY" "YNNNN" "NNNNY"

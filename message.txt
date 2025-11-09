@@ -1,0 +1,41 @@
+=== Results ===
+
+🎯 PERFECT (Sweet spot!):
+  YYNYN (3 toggles): Smooth (spectral smoothing), SoftBand (Gaussian bandpass), Warp (spectral compression)
+  YYNNY (3 toggles): Smooth (spectral smoothing), SoftBand (Gaussian bandpass), Mix (dry/wet blend)
+  YNNYY (3 toggles): Smooth (spectral smoothing), Warp (spectral compression), Mix (dry/wet blend)
+  NYNYY (3 toggles): SoftBand (Gaussian bandpass), Warp (spectral compression), Mix (dry/wet blend)
+  YYNNN (2 toggles): Smooth (spectral smoothing), SoftBand (Gaussian bandpass)
+  YNNNY (2 toggles): Smooth (spectral smoothing), Mix (dry/wet blend)
+  YNNNN (1 toggles): Smooth (spectral smoothing)
+  NNNNY (1 toggles): Mix (dry/wet blend)
+
+👤 TOO HUMAN (Need more processing):
+  YYYYY (5 toggles): Smooth (spectral smoothing), SoftBand (Gaussian bandpass), Blend (low-freq mix), Warp (spectral compression), Mix (dry/wet blend)
+  YYYYN (4 toggles): Smooth (spectral smoothing), SoftBand (Gaussian bandpass), Blend (low-freq mix), Warp (spectral compression)
+  YYYNY (4 toggles): Smooth (spectral smoothing), SoftBand (Gaussian bandpass), Blend (low-freq mix), Mix (dry/wet blend)
+  YNYYY (4 toggles): Smooth (spectral smoothing), Blend (low-freq mix), Warp (spectral compression), Mix (dry/wet blend)
+  NYYYY (4 toggles): SoftBand (Gaussian bandpass), Blend (low-freq mix), Warp (spectral compression), Mix (dry/wet blend)
+  YYYNN (3 toggles): Smooth (spectral smoothing), SoftBand (Gaussian bandpass), Blend (low-freq mix)
+  YNYYN (3 toggles): Smooth (spectral smoothing), Blend (low-freq mix), Warp (spectral compression)
+  NYYYN (3 toggles): SoftBand (Gaussian bandpass), Blend (low-freq mix), Warp (spectral compression)
+  NYYNY (3 toggles): SoftBand (Gaussian bandpass), Blend (low-freq mix), Mix (dry/wet blend)
+  NNYYY (3 toggles): Blend (low-freq mix), Warp (spectral compression), Mix (dry/wet blend)
+  YNYNN (2 toggles): Smooth (spectral smoothing), Blend (low-freq mix)
+  NYYNN (2 toggles): SoftBand (Gaussian bandpass), Blend (low-freq mix)
+  NYNNY (2 toggles): SoftBand (Gaussian bandpass), Mix (dry/wet blend)
+  NNYYN (2 toggles): Blend (low-freq mix), Warp (spectral compression)
+  NNYNY (2 toggles): Blend (low-freq mix), Mix (dry/wet blend)
+  NYNNN (1 toggles): SoftBand (Gaussian bandpass)
+  NNYNN (1 toggles): Blend (low-freq mix)
+
+🤖 TOO ROBOTIC (Need to soften):
+  YYNYY (4 toggles): Smooth (spectral smoothing), SoftBand (Gaussian bandpass), Warp (spectral compression), Mix (dry/wet blend)
+  NYNYN (2 toggles): SoftBand (Gaussian bandpass), Warp (spectral compression)
+  NNNYY (2 toggles): Warp (spectral compression), Mix (dry/wet blend)
+  NNNNN (0 toggles): No toggles enabled (pure robotic)
+
+📊 Analysis:
+  Perfect files average: 2.25 toggles enabled
+  Too-human files average: 2.823529411764706 toggles enabled
+  Too-robotic files average: 2.0 toggles enabled

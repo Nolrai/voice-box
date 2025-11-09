@@ -6,7 +6,10 @@ module VoiceBox.Transform
   , transformWavFile
     -- * Parameters
   , TransformParams (..)
+  , VocoderToggles (..)
   , preDoll0Params
+  , applyHarmonicVocoder
+  , applySimpleSpeedup
   ) where
 
 import qualified Data.Vector.Storable as V
@@ -80,13 +83,11 @@ transformStages sampleRate params samples =
   let fundamental = fromIntegral (tpAutotuneSteps params)
       speedupFactor = 2.0
   let blist = [False, True]
-  toggles <- VocoderToggles <$> blist <*> blist <*> blist <*> blist <*> blist
+  toggles <- VocoderToggles <$> blist <*> blist <*> blist
   let tag :: String = ('_':) $
         (\ b -> if b then 'Y' else 'N')
-          <$> [ vtEnableSmooth toggles
-              , vtEnableSoftBand toggles
+          <$> [ vtEnableSoftBand toggles
               , vtEnableBlend toggles
-              , vtEnableWarp toggles
               , vtEnableMix toggles
               ]
   let vocoded = applyHarmonicVocoder sampleRate fundamental toggles samples
@@ -102,11 +103,11 @@ transformStages sampleRate params samples =
 --------------------------------------------
 
 -- | Detailed controls for spectral and mixing refinements
+-- NOTE: Smooth (spectral smoothing) is always enabled
+-- NOTE: Warp (spectral warping) is always disabled (found to degrade quality)
 data VocoderToggles = VocoderToggles
-  { vtEnableSmooth   :: Bool
-  , vtEnableSoftBand :: Bool
+  { vtEnableSoftBand :: Bool
   , vtEnableBlend    :: Bool
-  , vtEnableWarp     :: Bool
   , vtEnableMix      :: Bool
   } deriving (Show, Eq)
 
@@ -119,13 +120,12 @@ data VocoderNumericParams = VocoderNumericParams
   , vnpWetRatio     :: Double
   } deriving (Show, Eq)
 
--- | Default "PreDoll-0" style toggles
+-- | Default "PreDoll-0" style toggles: YNY (SoftBand + Mix)
+-- Based on tournament evaluation - best balance of intelligibility and robotic character
 defaultVocoderToggles :: VocoderToggles
 defaultVocoderToggles = VocoderToggles
-  { vtEnableSmooth   = True
-  , vtEnableSoftBand = True
-  , vtEnableBlend    = True
-  , vtEnableWarp     = True
+  { vtEnableSoftBand = True
+  , vtEnableBlend    = False  -- Blend makes it sound too human
   , vtEnableMix      = True
   }
 
@@ -143,10 +143,8 @@ defaultVocoderNumericParams = VocoderNumericParams
 applyHarmonicVocoder :: Int -> Double -> VocoderToggles -> V.Vector Double -> V.Vector Double
 applyHarmonicVocoder sampleRate fundamentalHz
     VocoderToggles
-      { vtEnableSmooth = enableSmooth
-      , vtEnableSoftBand = enableSoftBand
+      { vtEnableSoftBand = enableSoftBand
       , vtEnableBlend = enableBlend
-      , vtEnableWarp = enableWarp
       , vtEnableMix = enableMix
     }
     samples =
@@ -156,7 +154,6 @@ applyHarmonicVocoder sampleRate fundamentalHz
       , vnpTolerance = tolerance
       , vnpBlendCutoff = blendCutoff
       , vnpBlendAmount = blendAmount
-      , vnpWarpAlpha = warpAlpha
       , vnpWetRatio = wetRatio} = defaultVocoderNumericParams
 
     ------------------------------------------------------------
@@ -172,16 +169,8 @@ applyHarmonicVocoder sampleRate fundamentalHz
     spectrum0 = fftForward complexSamples
 
     ------------------------------------------------------------
-    -- Optional spectral warping
-    warpIndex i alpha =
-      let x = fromIntegral i / fromIntegral n
-          warped = x ** alpha
-      in floor (warped * fromIntegral n)
-
-    spectrumWarped =
-      if enableWarp
-        then V.imap (\i _ -> spectrum0 V.! warpIndex i warpAlpha) spectrum0
-        else spectrum0
+    -- Optional spectral warping (always disabled - found to degrade quality)
+    spectrumWarped = spectrum0
 
     ------------------------------------------------------------
     -- Harmonic filtering with Gaussian tolerance
@@ -216,9 +205,7 @@ applyHarmonicVocoder sampleRate fundamentalHz
                 window = V.slice start (end - start + 1) spectrum
                 s = V.foldl' (+) 0 window
             in s / (fromIntegral (V.length window) :+ 0)
-      in if enableSmooth
-          then V.imap (\i _ -> avg i) spectrum
-          else spectrum
+      in V.imap (\i _ -> avg i) spectrum
 
     smoothed = smoothSpectrum smoothRadius filtered
 
@@ -243,9 +230,8 @@ applyHarmonicVocoder sampleRate fundamentalHz
     mixDryWet = V.zipWith (\d w -> (1 - wetRatio) * d + wetRatio * w)
 
   in if enableMix
-       then mixDryWet samples envelopeApplied
-       else envelopeApplied
-
+      then mixDryWet samples envelopeApplied
+      else envelopeApplied
 
 -- | Apply envelope ratio from original to vocoded signal
 -- For each sample, interpolate between envelope points and multiply by ratio
@@ -260,8 +246,8 @@ applyEnvelopeRatio sampleRate origEnv vocodedEnv samples =
             findEnvelope env =
               case dropWhile (\s -> ampTime s < t) env of
                 [] -> case reverse env of
-                       [] -> 1.0
-                       (lastSample:_) -> ampMagnitude lastSample
+                      [] -> 1.0
+                      (lastSample:_) -> ampMagnitude lastSample
                 (current:_) ->
                   case takeWhile (\s -> ampTime s < t) env of
                     [] -> ampMagnitude current
