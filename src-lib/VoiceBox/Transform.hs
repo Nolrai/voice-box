@@ -76,27 +76,24 @@ applySimpleSpeedup factor samples =
 transformStages :: Int -> TransformParams -> V.Vector Double -> [(String, V.Vector Double)]
 transformStages sampleRate params samples =
   let original = samples
-      just_speedup =
-        let speedupFactor = 2.0
-        in applySimpleSpeedup speedupFactor original
-  in [("00_original", samples), ("01_speedup", just_speedup)] ++ do
-  let fundamental = fromIntegral (tpAutotuneSteps params)
+      fundamental = fromIntegral (tpAutotuneSteps params)
       speedupFactor = 2.0
-  let blist = [False, True]
-  toggles <- VocoderToggles <$> blist <*> blist <*> blist
-  let tag :: String = ('_':) $
-        (\ b -> if b then 'Y' else 'N')
-          <$> [ vtEnableSoftBand toggles
-              , vtEnableBlend toggles
-              , vtEnableMix toggles
-              ]
-  let vocoded = applyHarmonicVocoder sampleRate fundamental toggles samples
+      toggles = defaultVocoderToggles
+
+      -- Get internal vocoder stages
+      (vocoded, vocoderStages) = applyHarmonicVocoderWithStages sampleRate fundamental toggles samples
       vocodedThenSpeedUp = applySimpleSpeedup speedupFactor vocoded
+
+      just_speedup = applySimpleSpeedup speedupFactor original
       speedupThenVocoded = applyHarmonicVocoder sampleRate fundamental toggles just_speedup
-  [ ( tag ++ "_02_vocoder", vocoded )
-    , ( tag ++ "_03_vocoder_speedup", vocodedThenSpeedUp )
-    , ( tag ++ "_04_speedup_vocoder", speedupThenVocoded )
-    ]
+
+  in [ ("00_original", samples)
+     , ("01_speedup_only", just_speedup)
+     ] ++ vocoderStages ++
+     [ ("08_vocoder_final", vocoded)
+     , ("09_vocoder_then_speedup", vocodedThenSpeedUp)
+     , ("10_speedup_then_vocoder", speedupThenVocoded)
+     ]
 
 --------------------------------------------
 -- | Effect Implementations
@@ -141,7 +138,12 @@ defaultVocoderNumericParams = VocoderNumericParams
   }
 
 applyHarmonicVocoder :: Int -> Double -> VocoderToggles -> V.Vector Double -> V.Vector Double
-applyHarmonicVocoder sampleRate fundamentalHz
+applyHarmonicVocoder sampleRate fundamentalHz toggles samples =
+  fst $ applyHarmonicVocoderWithStages sampleRate fundamentalHz toggles samples
+
+-- | Version that returns intermediate stages for debugging
+applyHarmonicVocoderWithStages :: Int -> Double -> VocoderToggles -> V.Vector Double -> (V.Vector Double, [(String, V.Vector Double)])
+applyHarmonicVocoderWithStages sampleRate fundamentalHz
     VocoderToggles
       { vtEnableSoftBand = enableSoftBand
       , vtEnableBlend = enableBlend
@@ -197,17 +199,11 @@ applyHarmonicVocoder sampleRate fundamentalHz
       ) spectrumWarped
 
     ------------------------------------------------------------
-    -- Spectral smoothing
-    smoothSpectrum radius spectrum =
-      let avg i =
-            let start = max 0 (i - radius)
-                end   = min (V.length spectrum - 1) (i + radius)
-                window = V.slice start (end - start + 1) spectrum
-                s = V.foldl' (+) 0 window
-            in s / (fromIntegral (V.length window) :+ 0)
-      in V.imap (\i _ -> avg i) spectrum
-
-    smoothed = smoothSpectrum smoothRadius filtered
+    -- Spectral smoothing - DISABLED for testing (was causing drone amplification)
+    -- The old smoothing caused phase cancellation (quieting at phrase ends)
+    -- The new magnitude-preserving smoothing amplifies the drone
+    -- TODO: Consider selective smoothing (only smooth high frequencies, not the fundamental/harmonics)
+    smoothed = filtered  -- No smoothing for now
 
     ------------------------------------------------------------
     -- Low-frequency blend
@@ -224,14 +220,47 @@ applyHarmonicVocoder sampleRate fundamentalHz
     result = fftInverse blended
     vocoded = V.map (\(r :+ _) -> r) result
 
-    vocodedEnvelope = extractEnvelope sampleRate analysisParams vocoded
-    envelopeApplied = applyEnvelopeRatio sampleRate originalEnvelope vocodedEnvelope vocoded
+    -- SKIP ENVELOPE APPLICATION - it was causing pops
+    -- Just use the raw vocoded signal
+    envelopeApplied_raw = vocoded  -- Skip envelope for now
+    envelopeApplied = vocoded      -- Use raw vocoded output
 
     mixDryWet = V.zipWith (\d w -> (1 - wetRatio) * d + wetRatio * w)
 
-  in if enableMix
+    -- Apply short fade-in/fade-out to eliminate pops at file boundaries
+    withFades signal =
+      let len = V.length signal
+          fadeSamples = min 441 (len `div` 10)  -- 10ms at 44.1kHz, or 10% of file
+          applyFade i val
+            | i < fadeSamples =
+                let gain = fromIntegral i / fromIntegral fadeSamples
+                in val * gain
+            | i >= len - fadeSamples =
+                let gain = fromIntegral (len - 1 - i) / fromIntegral fadeSamples
+                in val * gain
+            | otherwise = val
+      in V.imap applyFade signal
+
+    beforeFades = if enableMix
       then mixDryWet samples envelopeApplied
       else envelopeApplied
+
+    -- TEMPORARILY DISABLED: Testing if fades introduce pops
+    finalOutput = beforeFades  -- withFades beforeFades
+
+    -- Collect intermediate stages for debugging
+    stages =
+      [ ("02_after_harmonic_filter", V.map (\(r :+ _) -> r) $ fftInverse filtered)
+      , ("03_after_smoothing", V.map (\(r :+ _) -> r) $ fftInverse smoothed)
+      , ("04_after_blend", V.map (\(r :+ _) -> r) $ fftInverse blended)
+      , ("05_vocoded_raw", vocoded)
+      , ("06_envelope_applied_raw", envelopeApplied_raw)
+      , ("06b_envelope_normalized", envelopeApplied)
+      , ("06c_before_fades", beforeFades)
+      , ("07_with_fades_DISABLED", finalOutput)
+      ]
+
+  in (finalOutput, stages)
 
 -- | Apply envelope ratio from original to vocoded signal
 -- For each sample, interpolate between envelope points and multiply by ratio
