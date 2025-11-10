@@ -185,15 +185,10 @@ transformWavFile optsValues path = do
           exitFailure
         Right (samples, sampleRate) -> do
           let base = dropExtension outputFile
+              -- Now only SoftBand toggle remains (Blend and Mix removed)
               promisingTags =
-                [ ("YNY", Transform.VocoderToggles True False True)   -- SoftBand, Mix
-                , ("YNN", Transform.VocoderToggles True False False)  -- SoftBand only
-                , ("NNY", Transform.VocoderToggles False False True)  -- Mix only
-                , ("NNN", Transform.VocoderToggles False False False) -- baseline (Smooth only)
-                , ("YYY", Transform.VocoderToggles True True True)    -- SoftBand, Blend, Mix (for comparison)
-                , ("YYN", Transform.VocoderToggles True True False)   -- SoftBand, Blend
-                , ("NYY", Transform.VocoderToggles False True True)   -- Blend, Mix
-                , ("NYN", Transform.VocoderToggles False True False)  -- Blend only
+                [ ("Y", Transform.VocoderToggles True)   -- SoftBand enabled
+                , ("N", Transform.VocoderToggles False)  -- SoftBand disabled (hard cutoff)
                 ]
               fundamental = fromIntegral $ Transform.tpAutotuneSteps Transform.preDoll0Params
 
