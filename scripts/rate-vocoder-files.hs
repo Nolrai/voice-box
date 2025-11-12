@@ -50,9 +50,9 @@ countYs = length . filter (== 'Y')
 
 -- | Check if a tag matches a filter pattern (Y/N/? wildcards)
 matchesPattern :: String -> String -> Bool
-matchesPattern pattern tag
-  | length pattern /= length tag = False
-  | otherwise = all matchChar (zip pattern tag)
+matchesPattern filterPattern tag
+  | length filterPattern /= length tag = False
+  | otherwise = all matchChar (zip filterPattern tag)
   where
     matchChar ('?', _) = True
     matchChar (p, t) = p == t
@@ -103,7 +103,7 @@ main = do
   files <- listDirectory dir
   let parsed = [ p | f <- files, Just p <- [parseFile dir f] ]
       -- Filter: match if tag matches ANY of the patterns
-      filtered = [ (c, t, p) | (c, t, p) <- parsed, any (\pat -> matchesPattern pat t) patterns ]
+      filtered = [ (c, t, p) | (c, t, p) <- parsed, any (`matchesPattern` t) patterns ]
       sorted = sort filtered
 
   if null sorted
