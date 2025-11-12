@@ -3,12 +3,13 @@
 This folder contains narrative, worldbuilding, and in-universe technical documents for the Doll project. Canonical files are listed below; any temporary or superseded drafts should be removed or archived elsewhere.
 
 ## Canonical Files
+-- **DollHearing.md** — Technical and poetic summary of Doll phase-based hearing; merged from prior drafts.
+-- **PreDoll0_Speech.md** — The first Doll's speech and conceptual notes.
+-- **OnWaking.md** — Narrative prose, awakening sequence.
+-- **TheFirstConvergence.md** — Story fragment or world event.
 
-- **DollHearing.md** — Technical and poetic summary of Doll phase-based hearing; merged from prior drafts.
-- **FirstEars.md** — Narrative and technical account of the First Doll’s experiment to create hearing organs, exploring phase/interference-based perception and the origin of Doll auditory physiology.
-- **PreDoll0_Speech.md** — The first Doll's speech and conceptual notes.
-- **OnWaking.md** — Narrative prose, awakening sequence.
-- **TheFirstConvergence.md** — Story fragment or world event.
+## Note
+The original hybrid file **FirstEars.md** has been moved to the concept folder as a reference and bridge between narrative and technical documentation. See [../concept/FirstEars.md](../concept/FirstEars.md).
 ## Drafts and brainstorming
 
 - **drafts/gpt-musings-on-setting.md** — AI-generated setting notes and worldbuilding musings. This file contains raw brainstorming and speculative ideas; not part of the main narrative or technical canon. Move polished concepts into canonical docs as needed.
