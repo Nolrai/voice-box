@@ -1,4 +1,4 @@
-module VoiceBox.Synthesize where
+module VoiceBox.Audio.Synthesize where
 
 import LambdaSound (Pulse, Sound, SoundDuration (T), silence, (|->))
 import VoiceBox.Types
@@ -8,7 +8,7 @@ import VoiceBox.Types
 --   - Convert extracted features back to audio
 --   - Apply pitch contours to synthesis
 --   - Shape envelopes for realistic output
---   - Combine with Voice.Synth for phoneme-based synthesis
+--   - Combine with VoiceBox.Language.Synth for phoneme-based synthesis
 
 -- Placeholder: synthesize audio from extracted features
 synthesizeFromFeatures :: AudioFeatures -> Sound T Pulse

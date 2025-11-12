@@ -1,4 +1,4 @@
-module Voice.IPA.Types where
+module VoiceBox.Language.IPA.Types where
 
 import Data.List.NonEmpty (NonEmpty)
 import Data.Text (Text)

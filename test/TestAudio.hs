@@ -5,7 +5,7 @@ module Main where
 import Data.Vector.Storable qualified as V
 import Data.WAVE qualified as WAVE
 import System.Exit (exitSuccess)
-import VoiceBox.Analyze qualified as VB
+import VoiceBox.Audio.Analyze qualified as VB
 import VoiceBox.Types qualified as VB
 
 main :: IO ()

@@ -64,19 +64,20 @@ library
 
     -- Modules exported by the library.
     exposed-modules:
-        Voice.Types
-        Voice.IPA
-        Voice.IPA.Roman
-        Voice.IPA.PhonoCode
-        Voice.IPA.Common
-        Voice.IPA.Types
-        Voice.Synth
-        Voice.Util
+        VoiceBox
+        VoiceBox.Language.Types
+        VoiceBox.Language.IPA
+        VoiceBox.Language.IPA.Roman
+        VoiceBox.Language.IPA.PhonoCode
+        VoiceBox.Language.IPA.Common
+        VoiceBox.Language.IPA.Types
+        VoiceBox.Language.Synth
+        VoiceBox.Language.Util
         VoiceBox.Types
-        VoiceBox.Analyze
-        VoiceBox.Synthesize
+        VoiceBox.Audio.Analyze
+        VoiceBox.Audio.Synthesize
         VoiceBox.Pipeline
-        VoiceBox.Transform
+        VoiceBox.Audio.Transform
 
     -- Modules included in this library but not exported.
     other-modules:

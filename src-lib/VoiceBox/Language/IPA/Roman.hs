@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Voice.IPA.Roman
+module VoiceBox.Language.IPA.Roman
   ( parseText,
   )
 where
@@ -9,8 +9,8 @@ import Data.Functor (($>))
 import Data.Text (Text)
 import Text.Megaparsec
 import Text.Megaparsec.Char
-import Voice.IPA.Common qualified as C
-import Voice.IPA.Types
+import VoiceBox.Language.IPA.Common qualified as C
+import VoiceBox.Language.IPA.Types
 
 -- top-level (same shape as Phono parser)
 parseText :: Parser [[Foot]]

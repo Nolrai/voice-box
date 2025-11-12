@@ -63,7 +63,7 @@ src-lib/
 ## Migration Steps
 
 1. **Rename `Voice` → `VoiceBox.Language`**
-   - Adjust imports (`Voice.IPA` → `VoiceBox.Language.IPA`).
+   - Adjust imports (`VoiceBox.Language.IPA` → `VoiceBox.Language.IPA`).
    - Keep existing phonology and Romanization logic.
 
 2. **Keep `VoiceBox` as the DSP layer**

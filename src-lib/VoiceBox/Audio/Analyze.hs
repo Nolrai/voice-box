@@ -11,7 +11,7 @@
 --     - Autocorrelation for pitch detection
 --
 --   Implementation: Real FFT-based analysis for pitch, envelope, and formants.
-module VoiceBox.Analyze
+module VoiceBox.Audio.Analyze
   ( analyzeAudio,
     analyzeAudioWithParams,
     extractPitch,

@@ -1,4 +1,4 @@
-module VoiceBox.Transform
+module VoiceBox.Audio.Transform
   ( -- * Transformation
     transformAudio
   , transformAudioWithParams
@@ -35,7 +35,7 @@ import qualified Data.Vector.Storable as V
 import Data.Complex (Complex ((:+)))
 import qualified Math.FFT as FFT
 import qualified Data.Array.CArray as CA
-import VoiceBox.Analyze (readWaveFile, writeWaveFile)
+import VoiceBox.Audio.Analyze (readWaveFile, writeWaveFile)
 
 --------------------------------------------
 -- | Transformation Parameters

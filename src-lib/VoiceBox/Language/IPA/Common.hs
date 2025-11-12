@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Voice.IPA.Common
+module VoiceBox.Language.IPA.Common
   ( Parser,
     longestChoice,
     vowelName,
@@ -23,7 +23,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Text.Megaparsec
 import Text.Megaparsec.Char
-import Voice.IPA.Types
+import VoiceBox.Language.IPA.Types
 
 -- Build a choice parser from (text -> value) table using longest-first matching.
 longestChoice :: [(Text, a)] -> Parser a

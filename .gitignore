@@ -23,3 +23,4 @@ cabal.project.local~
 .ghc.environment.*
 *.wav
 lambdasound-1.2.1/
+data/*

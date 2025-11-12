@@ -1,4 +1,4 @@
-module Voice.Types where
+module VoiceBox.Language.Types where
 
 import Data.IntSet (IntSet)
 import Data.Word (Word16, Word8)

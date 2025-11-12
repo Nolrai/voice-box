@@ -6,7 +6,7 @@
 -- | Small IO helpers.
 -- | This module hosts utilities for invoking external tools; RunLexurgy was
 -- | moved here to centralize IO helpers used by multiple executables.
-module Voice.Util
+module VoiceBox.Language.Util
   ( annotateIO,
     errorIO,
     readFileUtf8,

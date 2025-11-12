@@ -8,11 +8,11 @@ import Options.Applicative
 import Paths_voice_box
 import System.Exit (exitFailure, exitSuccess)
 import System.FilePath (dropExtension, takeExtension, (<.>))
-import Voice.IPA
-import Voice.Synth
-import Voice.Util (writeFileUtf8)
-import VoiceBox.Analyze (analyzeAudio, readWaveFile, writeWaveFile)
-import VoiceBox.Transform qualified as Transform
+import VoiceBox.Language.IPA
+import VoiceBox.Language.Synth
+import VoiceBox.Language.Util (writeFileUtf8)
+import VoiceBox.Audio.Analyze (analyzeAudio, readWaveFile, writeWaveFile)
+import VoiceBox.Audio.Transform qualified as Transform
 import VoiceBox.Types qualified as VB
 import Data.Foldable (forM_)
 
@@ -242,7 +242,7 @@ transformWavFile optsValues path = do
 synthesizeFromText :: Options -> FilePath -> IO ()
 synthesizeFromText optsValues path = do
   -- parseFile returns [[Foot]] - a list of utterances, each containing feet
-  result <- Voice.IPA.parseFile path
+  result <- VoiceBox.Language.IPA.parseFile path
   putStrLn $ "Parsed " ++ show (length result) ++ " utterances."
 
   -- Print hierarchical structure stats: utterances → feet → phonemes

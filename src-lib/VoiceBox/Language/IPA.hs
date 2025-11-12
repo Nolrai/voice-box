@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Voice.IPA (parseFile) where
+module VoiceBox.Language.IPA (parseFile) where
 
 import Control.Exception (throwIO)
 import Control.Monad.Except
@@ -11,9 +11,9 @@ import Data.Void (Void)
 import Text.Megaparsec (eof, runParser)
 import Text.Megaparsec.Char (hspace)
 import Text.Megaparsec.Error
-import Voice.IPA.PhonoCode qualified as Phono
-import Voice.IPA.Roman qualified as Roman
-import Voice.IPA.Types
+import VoiceBox.Language.IPA.PhonoCode qualified as Phono
+import VoiceBox.Language.IPA.Roman qualified as Roman
+import VoiceBox.Language.IPA.Types
 
 -- | Run an ExceptT computation and throw a user-error on failure.
 liftToUserError :: ExceptT String IO a -> IO a

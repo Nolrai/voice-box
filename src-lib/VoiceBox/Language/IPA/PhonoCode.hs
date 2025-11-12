@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Voice.IPA.PhonoCode where
+module VoiceBox.Language.IPA.PhonoCode where
 
 import Control.Exception (throwIO)
 import Data.ByteString qualified as BS
@@ -8,8 +8,8 @@ import Data.Functor (($>))
 import Data.Text.Encoding (decodeUtf8')
 import Text.Megaparsec
 import Text.Megaparsec.Char
-import Voice.IPA.Common qualified as C
-import Voice.IPA.Types
+import VoiceBox.Language.IPA.Common qualified as C
+import VoiceBox.Language.IPA.Types
 
 -- | Read and parse a file containing ProtoDoll text.
 --
@@ -56,7 +56,7 @@ parsePhoneme =
 parseNeutralVowel :: Parser Phoneme
 parseNeutralVowel = char 'q' $> NeutralVowel
 
--- | Parse a consonant: manner + place + voice.
+-- | Parse a consonant: manner + place + VoiceBox.Language.
 parseConsonant :: Parser Phoneme
 parseConsonant = do
   m <- C.parseManner

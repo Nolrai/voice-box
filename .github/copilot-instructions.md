@@ -15,8 +15,8 @@ Key modules to read first:
 - `src-exe/Main.hs` — program entrypoint and CLI wiring
 
 Why things are structured this way
-- Parsing and synthesis are split: parsing lives under `Voice.IPA.*` and produces typed
-  intermediate structures (`IPA.Types`, `Voice.Types`). `Synth` consumes those types and drives
+- Parsing and synthesis are split: parsing lives under `VoiceBox.Language.IPA.*` and produces typed
+  intermediate structures (`IPA.Types`, `VoiceBox.Language.Types`). `Synth` consumes those types and drives
   the audio backend (`lambdasound`). This separation keeps parsing, representation and synthesis
   logic independent and testable.
 - VoiceBox modules are currently stubs for future audio analysis/feature extraction work (analyzing
@@ -53,8 +53,8 @@ Integration points & external dependencies
 
 Small coding contract for contributors/agents
 
-- Inputs: UTF-8 romanized text sample files under `test-data/misc` or the CLI input parsed by `Voice.IPA`.
-- Outputs: typed parse trees (`Voice.IPA.Types`) and synthesis-ready structures (`Voice.Types`), and audio via `lambdasound`.
+- Inputs: UTF-8 romanized text sample files under `test-data/misc` or the CLI input parsed by `VoiceBox.Language.IPA`.
+- Outputs: typed parse trees (`VoiceBox.Language.IPA.Types`) and synthesis-ready structures (`VoiceBox.Language.Types`), and audio via `lambdasound`.
 - Error modes: parsers should return informative Megaparsec errors; synthesis should validate required fields.
 
 Useful quick references
