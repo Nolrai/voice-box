@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Control.Monad (when)
@@ -8,14 +10,16 @@ import LambdaSound
 import Options.Applicative
 import Paths_voice_box (version)
 import System.Exit (exitFailure, exitSuccess)
+import Control.Exception (catch, SomeException, displayException)
 import System.FilePath (dropExtension, takeExtension, (<.>))
 
 -- VoiceBox internal modules
 import VoiceBox.Language.IPA qualified as IPA
-import VoiceBox.Language.Util (writeFileUtf8)
+import VoiceBox.Language.Util (writeFileUtf8, errorIO)
 import VoiceBox.Audio.Analyze (analyzeAudio, readWaveFile, writeWaveFile)
 import VoiceBox.Audio.Transform qualified as Transform
 import VoiceBox.Types qualified as VB
+import VoiceBox.Language.Synth qualified as Synth
 
 -- | Command-line options
 data Options = Options
@@ -75,22 +79,28 @@ opts =
         ("voice-box version " <> show version)
         (long "version" <> short 'v' <> help "Show version information")
 
+
+
 main :: IO ()
-main = execParser opts >>= processFile
+main = (execParser opts >>= processFile)
+  `catch` \(e :: SomeException) -> do
+    putStrLn $ "\n[ERROR] " ++ displayException e
+    exitFailure
+
 
 processFile :: Options -> IO ()
 processFile optsValues = do
   let path = optInputFile optsValues
       ext = takeExtension path
 
+  -- Transform takes precedence and always exits after running.
   when (optTransform optsValues) $ do
     transformWavFile optsValues path
     exitSuccess
 
+  -- Only one of analyze/synthesize may be set.
   case (optAnalyze optsValues, optSynthesize optsValues) of
-    (True, True) -> do
-      putStrLn "Error: Cannot specify both --analyze and --synthesize"
-      exitFailure
+    (True, True) -> errorIO "Cannot specify both --analyze and --synthesize"
     (True, False) -> analyzeWavFile optsValues path
     (False, True) -> synthesizeFromText optsValues path
     (False, False) ->
@@ -99,6 +109,7 @@ processFile optsValues = do
         else synthesizeFromText optsValues path
 
 -- | Analyze a WAV file and print extracted features
+
 analyzeWavFile :: Options -> FilePath -> IO ()
 analyzeWavFile optsValues path = do
   putStrLn $ "Analyzing WAV file: " ++ path
@@ -126,9 +137,8 @@ analyzeWavFile optsValues path = do
       (\s -> putStrLn $ "  " ++ VB.segLabel s ++ ": " ++ show (VB.segStart s) ++ "s - " ++ show (VB.segEnd s) ++ "s")
       (VB.afSegments features)
 
-  exitSuccess
-
 -- | Apply the PreDoll-0 transformation to a WAV file
+
 transformWavFile :: Options -> FilePath -> IO ()
 transformWavFile optsValues path = do
   putStrLn $ "Applying PreDoll-0 transformation to: " ++ path
@@ -138,7 +148,7 @@ transformWavFile optsValues path = do
     then do
       audioResult <- readWaveFile path
       case audioResult of
-        Left err -> putStrLn ("Error reading WAV file: " ++ err) >> exitFailure
+        Left err -> errorIO ("Error reading WAV file: " <> Text.pack err)
         Right (samples, sr) -> do
           let base = dropExtension outputFile
               tags =
@@ -147,34 +157,38 @@ transformWavFile optsValues path = do
                 ]
               fundamental = fromIntegral $ Transform.tpAutotuneSteps Transform.preDoll0Params
 
+          -- Render and write output for each toggle combination.
           forM_ tags $ \(tag, toggles) -> do
             let vocoded = Transform.applyHarmonicVocoder sr fundamental toggles samples
                 final = Transform.applySimpleSpeedup 2.0 vocoded
                 outPath = base ++ "__" ++ tag ++ "_final.wav"
             writeWaveFile outPath sr final
-            putStrLn $ "  → Wrote " ++ outPath
+            putStrLn $ "  -> Wrote " ++ outPath
           putStrLn "\nBatch render complete!"
-          exitSuccess
+          return ()
     else do
       maybeErr <- Transform.transformWavFile path outputFile
       case maybeErr of
-        Just err -> putStrLn ("Error: " ++ err) >> exitFailure
-        Nothing -> putStrLn ("Saved transformed audio to: " ++ outputFile) >> exitSuccess
+        Just err -> errorIO ("Error: " <> Text.pack err)
+        Nothing -> putStrLn ("Saved transformed audio to: " ++ outputFile)
 
 -- | Synthesize audio from a text file
+
 synthesizeFromText :: Options -> FilePath -> IO ()
 synthesizeFromText optsValues path = do
   result <- IPA.parseFile path
   putStrLn $ "Parsed " ++ show (length result) ++ " utterances."
 
+  -- Write debug output if requested.
   when (optDebug optsValues) $
     writeFileUtf8 (path <.> "debug") (Text.pack (show result))
 
   putStrLn "Beginning synthesis..."
-  let sound = IPA.paragraphsToSound result
+  let sound = Synth.paragraphsToSound result
       soundFile = fromMaybe (dropExtension path <.> "wav") (optOutputFile optsValues)
       sampleRate = Hz (fromIntegral $ optSampleRate optsValues)
 
   putStrLn $ "Saving " <> soundFile <> " ..."
   saveWav soundFile sampleRate sound
-  exitSuccess
+  return ()
+-- | Synthesize audio from a text file: parses, optionally writes debug output, and saves the WAV.
