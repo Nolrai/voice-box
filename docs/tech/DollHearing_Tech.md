@@ -1,3 +1,40 @@
+## 6. Standard Resonator Types and Frequency Bands
+
+The Doll's auditory system is composed of three main types of resonators, each covering a distinct frequency range and physical/magical mechanism. This structure is inspired by both biological cochleae and engineered filterbanks, but adapted to the materials and phase-based perception of Dolls.
+
+### Resonator Types
+
+| Type              | Material/Structure         | Frequency Range (Hz) | Notes |
+|-------------------|---------------------------|----------------------|-------|
+| Drum              | Red ink pool/reservoir    | 360–1800             | Large, low-frequency, main auditory resonator |
+| BismuthWrapping   | Bismuth wire, alchemical  | 2000–11200           | Mid-frequency, self-catalyzing pulse transmission |
+| ShellResonance    | Ceramic/porcelain shell   | 6000–20000           | High-frequency, physical shell vibration |
+
+Each resonator is modeled as a phase-saturated cavity, with phase (not amplitude) as the primary variable. The Haskell model uses:
+
+```haskell
+data CavityType = Drum | BismuthWrapping | ShellResonance deriving (Eq, Show)
+data ResonantCavity = ResonantCavity { cavityType :: CavityType, cavityFrequency :: Double, cavityPhase :: Double }
+```
+
+### Standard Band Distribution (Example)
+
+The following set of bands provides broad, speech-optimized coverage:
+
+| Type            | Frequencies (Hz)                |
+|-----------------|---------------------------------|
+| Drum            | 360, 500, 700, 1000, 1400, 1800 |
+| BismuthWrapping | 2000, 2800, 4000, 5600, 8000, 11200 |
+| ShellResonance  | 6000, 9000, 13000, 18000, 20000 |
+
+This distribution is logarithmic, with more area (or more sensors) devoted to lower frequencies, and more bands per octave at higher frequencies, matching both biological and engineering best practices.
+
+#### Physical and Magical Rationale
+- Drums (red ink pools) act as the main low-frequency sensors, analogous to the basilar membrane in mammals.
+- BismuthWrapping covers the midrange, using alchemical pulses at speeds similar to myelinated nerves, filling the gap between Drums and ShellResonance.
+- ShellResonance provides high-frequency sensitivity, with resonances determined by the shell's size and material.
+
+This model allows Dolls to perceive a wide range of frequencies, with phase coherence as the primary perceptual variable, and is implemented in code as the `standardHearingCavities` list in `VoiceBox.Audio.Ear`.
 # Doll Hearing — Technical Basis
 
 This document covers the physical and perceptual mechanisms of Doll hearing, focusing on phase-based detection, material structure, and consequences for sound processing.
