@@ -75,13 +75,14 @@ library
         VoiceBox.Language.Util
         VoiceBox.Types
         VoiceBox.Audio.Analyze
+        VoiceBox.Audio.Ear
+        VoiceBox.Audio.Ear.Data
         VoiceBox.Audio.Synthesize
-        VoiceBox.Pipeline
         VoiceBox.Audio.Transform
+        VoiceBox.Pipeline
 
     -- Modules included in this library but not exported.
     other-modules:
-
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -105,6 +106,8 @@ library
         , carray
         , safe
         , errors
+        , dsp
+        , array
 
     -- Directories containing source files.
     hs-source-dirs:   src-lib
