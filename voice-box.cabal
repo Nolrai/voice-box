@@ -156,7 +156,9 @@ test-suite voice-box-test
     default-language: GHC2024
 
     -- Modules included in this executable, other than Main.
-    -- other-modules:
+    other-modules:
+        VoiceBox.Audio.EarTest
+        VoiceBox.Language.ParseGoldenTest
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
@@ -172,10 +174,17 @@ test-suite voice-box-test
 
     -- Test dependencies.
     build-depends:
+        QuickCheck ^>=2.17.1.0,
+        tasty ^>=1.5.3,
+        tasty-hunit ^>=0.10.2,
+        tasty-quickcheck ^>=0.11.1,
+        containers ^>=0.7,
         base,
         voice-box,
         filepath,
         directory,
+        HUnit,
+        vector,
 
 executable test-audio
     -- Import common warning flags.

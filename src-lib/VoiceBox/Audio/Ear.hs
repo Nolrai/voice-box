@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module VoiceBox.Audio.Ear (getDollHearing) where
+module VoiceBox.Audio.Ear where
 
 import Control.Monad.Reader (Reader, ask, runReader, asks)
 import Data.Vector (Vector)
