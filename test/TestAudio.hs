@@ -61,7 +61,7 @@ generateSineTone sampleRate duration freq =
   let (numSamples :: Int) = floor (fromIntegral sampleRate * duration)
       sr = fromIntegral sampleRate
       genSample i = sin (2 * pi * freq * fromIntegral i / sr)
-  in V.fromList $ map genSample [0 .. numSamples - 1]
+   in V.fromList $ map genSample [0 .. numSamples - 1]
 
 -- | Save samples as a WAVE file
 saveWave :: FilePath -> Int -> V.Vector Double -> IO ()

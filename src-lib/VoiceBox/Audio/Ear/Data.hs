@@ -1,28 +1,35 @@
 module VoiceBox.Audio.Ear.Data where
 
-import Data.Vector.Storable hiding ((++))
 import Data.Complex
-import LambdaSound (Hz(Hz))
+import Data.Vector.Storable hiding ((++))
+import LambdaSound (Hz (Hz))
 
 -- | The type of resonant cavity accessible to the doll.
 -- 'Drum' refers to a broad, shallow pool or reservoir of red ink, typically filling the interior of a limb cap or body part.
 -- These act as the main low-frequency resonators, analogous to drums, but not made of stretched material.
 data CavityType
-  = ShellResonance         -- ^ Physical ringing of the shell (ceramic, etc.)
-  | Drum                   -- ^ Red ink pool/reservoir (main auditory resonator)
-  | BismuthWrapping        -- ^ Large bismuth wrapping, lubricated with dream oil
+  = -- | Physical ringing of the shell (ceramic, etc.)
+    ShellResonance
+  | -- | Red ink pool/reservoir (main auditory resonator)
+    Drum
+  | -- | Large bismuth wrapping, lubricated with dream oil
+    BismuthWrapping
   deriving (Eq, Show, Ord)
 
 -- | Represents the phase state of a single resonant cavity (frequency band).
 data ResonantCavity = ResonantCavity
-  { cavityType     :: CavityType   -- ^ What kind of cavity is this?
-  , cavityFrequency :: Hz      -- ^ Resonant frequency (Hz)
-  } deriving (Eq, Show, Ord)
+  { -- | What kind of cavity is this?
+    cavityType :: CavityType,
+    -- | Resonant frequency (Hz)
+    cavityFrequency :: Hz
+  }
+  deriving (Eq, Show, Ord)
 
 -- | The doll's "ear" is a collection of saturated resonant cavities.
 newtype DollEar = DollEar [ResonantCavity]
 
 newtype AudioInput = AudioInput (Vector Double)
+
 newtype FrequencyDomain = FrequencyDomain (Vector (Complex Double))
 
 newtype Seconds = Seconds Double
@@ -42,39 +49,39 @@ powerFrequency = 60.0 -- in Hz
 standardHearingCavities :: [ResonantCavity]
 standardHearingCavities =
   -- Drums: low frequencies, fewest bands
-  [ ResonantCavity Drum 360
-  , ResonantCavity Drum 500
-  , ResonantCavity Drum 700
-  , ResonantCavity Drum 1000
-  , ResonantCavity Drum 1400
-  , ResonantCavity Drum 1800
+  [ ResonantCavity Drum 360,
+    ResonantCavity Drum 500,
+    ResonantCavity Drum 700,
+    ResonantCavity Drum 1000,
+    ResonantCavity Drum 1400,
+    ResonantCavity Drum 1800
   ]
-  ++
-  -- BismuthWrapping: mid frequencies, more bands
-  -- BismuthWrapping: mid frequencies, more bands
-  -- ShellResonance: high frequencies, fewest bands (physical limit)
-  -- BismuthWrapping: mid frequencies, more bands
-  [ ResonantCavity BismuthWrapping 2000
-  , ResonantCavity BismuthWrapping 2800
-  , ResonantCavity BismuthWrapping 4000
-  , ResonantCavity BismuthWrapping 5600
-  , ResonantCavity BismuthWrapping 8000
-  , ResonantCavity BismuthWrapping 11200
-  ]
-  ++
-  -- ShellResonance: high frequencies, fewest bands (physical limit)
-  [ ResonantCavity ShellResonance 6000
-  , ResonantCavity ShellResonance 9000
-  , ResonantCavity ShellResonance 13000
-  , ResonantCavity ShellResonance 18000
-  , ResonantCavity ShellResonance 20000
-  ]
+    ++
+    -- BismuthWrapping: mid frequencies, more bands
+    -- BismuthWrapping: mid frequencies, more bands
+    -- ShellResonance: high frequencies, fewest bands (physical limit)
+    -- BismuthWrapping: mid frequencies, more bands
+    [ ResonantCavity BismuthWrapping 2000,
+      ResonantCavity BismuthWrapping 2800,
+      ResonantCavity BismuthWrapping 4000,
+      ResonantCavity BismuthWrapping 5600,
+      ResonantCavity BismuthWrapping 8000,
+      ResonantCavity BismuthWrapping 11200
+    ]
+    ++
+    -- ShellResonance: high frequencies, fewest bands (physical limit)
+    [ ResonantCavity ShellResonance 6000,
+      ResonantCavity ShellResonance 9000,
+      ResonantCavity ShellResonance 13000,
+      ResonantCavity ShellResonance 18000,
+      ResonantCavity ShellResonance 20000
+    ]
 
 -- | Choose a quality factor (Q) based on the cavity type.
 cavityQ :: CavityType -> Double
-cavityQ Drum = 5.0              -- Broad, shallow pool: low Q
-cavityQ ShellResonance = 20.0   -- Ceramic shell: high Q
-cavityQ BismuthWrapping = 10.0  -- Bismuth: medium Q
+cavityQ Drum = 5.0 -- Broad, shallow pool: low Q
+cavityQ ShellResonance = 20.0 -- Ceramic shell: high Q
+cavityQ BismuthWrapping = 10.0 -- Bismuth: medium Q
 
 -- | A decay coefficcient influencing phase smoothing.
 cavityK :: CavityType -> Double
@@ -89,8 +96,8 @@ hzToPeriod :: Hz -> Seconds
 hzToPeriod (Hz f) = Seconds (1.0 / realToFrac f)
 
 class Scaled a where
-  scaleF :: Real b => b -> a -> a
-  scaleI :: Integral b => b -> a -> a
+  scaleF :: (Real b) => b -> a -> a
+  scaleI :: (Integral b) => b -> a -> a
 
 instance Scaled Seconds where
   scaleF s (Seconds t) = Seconds (realToFrac s * t)

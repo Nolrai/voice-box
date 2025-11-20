@@ -80,6 +80,7 @@ library
         VoiceBox.Audio.Synthesize
         VoiceBox.Audio.Transform
         VoiceBox.Pipeline
+        VoiceBox.Audio.Ear.Types
 
     -- Modules included in this library but not exported.
     other-modules:

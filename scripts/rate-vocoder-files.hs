@@ -17,31 +17,31 @@
 --   ./rate-vocoder-files.hs . ?N??               # pattern: Blend=N
 --   ./rate-vocoder-files.hs . YNYN ?N??          # mix exact tags and patterns
 
-import System.Directory (listDirectory, doesFileExist)
+import Control.Monad (forM_, unless)
+import Data.List (intercalate, isPrefixOf, isSuffixOf, sort)
+import System.Directory (doesFileExist, listDirectory)
 import System.Environment (getArgs)
-import System.Process (callCommand)
 import System.IO (hFlush, stdout)
-import Data.List (sort, isPrefixOf, isSuffixOf, intercalate)
-import Control.Monad (unless, forM_)
+import System.Process (callCommand)
 
 -- | Toggle names in order (Smooth is now always enabled)
 toggleNames :: [String]
 toggleNames =
-  [ "SoftBand (Gaussian bandpass)"
-  , "Blend (low-freq mix)"
-  , "Warp (spectral compression)"
-  , "Mix (dry/wet blend)"
+  [ "SoftBand (Gaussian bandpass)",
+    "Blend (low-freq mix)",
+    "Warp (spectral compression)",
+    "Mix (dry/wet blend)"
   ]
 
 -- | Extract the toggle tag from a filename
 extractTag :: String -> Maybe String
 extractTag filename =
   case dropWhile (/= '_') filename of
-    ('_':'_':rest) ->
+    ('_' : '_' : rest) ->
       let tag = takeWhile (/= '_') rest
-      in if all (`elem` "YN") tag && length tag == 4  -- Changed from 5 to 4
-         then Just tag
-         else Nothing
+       in if all (`elem` "YN") tag && length tag == 4 -- Changed from 5 to 4
+            then Just tag
+            else Nothing
     _ -> Nothing
 
 -- | Count 'Y' toggles
@@ -60,8 +60,8 @@ matchesPattern filterPattern tag
 -- | Parse a filename into (toggleCount, tag, filepath)
 parseFile :: FilePath -> String -> Maybe (Int, String, FilePath)
 parseFile dir filename
-  | "predoll0__" `isPrefixOf` filename &&
-    "_03_vocoder_speedup.wav" `isSuffixOf` filename =
+  | "predoll0__" `isPrefixOf` filename
+      && "_03_vocoder_speedup.wav" `isSuffixOf` filename =
       case extractTag filename of
         Just tag -> Just (countYs tag, tag, dir ++ "/" ++ filename)
         Nothing -> Nothing
@@ -70,10 +70,10 @@ parseFile dir filename
 -- | Describe which toggles are enabled
 describeToggles :: String -> String
 describeToggles tag =
-  let enabled = [ name | (name, c) <- zip toggleNames tag, c == 'Y' ]
-  in if null enabled
-     then "No toggles enabled (pure robotic)"
-     else intercalate ", " enabled
+  let enabled = [name | (name, c) <- zip toggleNames tag, c == 'Y']
+   in if null enabled
+        then "No toggles enabled (pure robotic)"
+        else intercalate ", " enabled
 
 -- | Get user rating
 getRating :: IO (Maybe String)
@@ -89,21 +89,21 @@ getRating = do
     "s" -> Just "skip"
     "q" -> Nothing
     "x" -> Just "replay"
-    _   -> Just "skip"
+    _ -> Just "skip"
 
 main :: IO ()
 main = do
   args <- getArgs
   let (dir, patterns) = case args of
-        [] -> (".", ["????"])  -- default: all files (4 chars now)
-        [d] -> (d, ["????"])   -- directory only, all files
-        (d:ps) -> (d, ps)      -- directory + list of patterns/tags
+        [] -> (".", ["????"]) -- default: all files (4 chars now)
+        [d] -> (d, ["????"]) -- directory only, all files
+        (d : ps) -> (d, ps) -- directory + list of patterns/tags
 
   -- List and parse files
   files <- listDirectory dir
-  let parsed = [ p | f <- files, Just p <- [parseFile dir f] ]
+  let parsed = [p | f <- files, Just p <- [parseFile dir f]]
       -- Filter: match if tag matches ANY of the patterns
-      filtered = [ (c, t, p) | (c, t, p) <- parsed, any (`matchesPattern` t) patterns ]
+      filtered = [(c, t, p) | (c, t, p) <- parsed, any (`matchesPattern` t) patterns]
       sorted = sort filtered
 
   if null sorted
@@ -125,10 +125,10 @@ main = do
 
       putStrLn "\n=== Results ==="
 
-      let perfectOnes = [ (tag, count) | (tag, count, "perfect") <- results ]
-          tooHuman = [ (tag, count) | (tag, count, "too-human") <- results ]
-          tooRobotic = [ (tag, count) | (tag, count, "too-robotic") <- results ]
-          unintelligible = [ (tag, count) | (tag, count, "unintelligible") <- results ]
+      let perfectOnes = [(tag, count) | (tag, count, "perfect") <- results]
+          tooHuman = [(tag, count) | (tag, count, "too-human") <- results]
+          tooRobotic = [(tag, count) | (tag, count, "too-robotic") <- results]
+          unintelligible = [(tag, count) | (tag, count, "unintelligible") <- results]
 
       unless (null perfectOnes) $ do
         putStrLn "\n🎯 PERFECT (Sweet spot!):"
@@ -158,16 +158,19 @@ main = do
             avgRobotic = if null tooRobotic then 0 else fromIntegral (sum $ map snd tooRobotic) / fromIntegral (length tooRobotic) :: Double
 
         unless (null perfectOnes) $
-          putStrLn $ "  Perfect files average: " ++ show avgPerfect ++ " toggles enabled"
+          putStrLn $
+            "  Perfect files average: " ++ show avgPerfect ++ " toggles enabled"
         unless (null tooHuman) $
-          putStrLn $ "  Too-human files average: " ++ show avgHuman ++ " toggles enabled"
+          putStrLn $
+            "  Too-human files average: " ++ show avgHuman ++ " toggles enabled"
         unless (null tooRobotic) $
-          putStrLn $ "  Too-robotic files average: " ++ show avgRobotic ++ " toggles enabled"
+          putStrLn $
+            "  Too-robotic files average: " ++ show avgRobotic ++ " toggles enabled"
 
 -- | Rate each file interactively
 rateFiles :: [(Int, String, FilePath)] -> [(String, Int, String)] -> IO [(String, Int, String)]
 rateFiles [] results = return results
-rateFiles ((count, tag, path):rest) results = do
+rateFiles ((count, tag, path) : rest) results = do
   exists <- doesFileExist path
   if not exists
     then do
@@ -175,7 +178,7 @@ rateFiles ((count, tag, path):rest) results = do
       rateFiles rest results
     else do
       putStrLn "\\n----------------------------------------"
-      putStrLn $ "Tag: " ++ tag ++ " (" ++ show count ++ "/4 toggles enabled)"  -- Changed from 5 to 4
+      putStrLn $ "Tag: " ++ tag ++ " (" ++ show count ++ "/4 toggles enabled)" -- Changed from 5 to 4
       putStrLn $ "Enabled: " ++ describeToggles tag
       putStrLn $ "File: " ++ path
       putStrLn ""
@@ -188,6 +191,6 @@ playAndRate path tag count rest results = do
   callCommand $ "aplay -q " ++ show path
   rating <- getRating
   case rating of
-    Nothing -> return results  -- quit
+    Nothing -> return results -- quit
     Just "replay" -> playAndRate path tag count rest results
     Just r -> rateFiles rest ((tag, count, r) : results)

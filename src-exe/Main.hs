@@ -2,6 +2,7 @@
 
 module Main where
 
+import Control.Exception (SomeException, catch, displayException)
 import Control.Monad (when)
 import Data.Foldable (forM_)
 import Data.Maybe (fromMaybe)
@@ -10,16 +11,15 @@ import LambdaSound
 import Options.Applicative
 import Paths_voice_box (version)
 import System.Exit (exitFailure, exitSuccess)
-import Control.Exception (catch, SomeException, displayException)
 import System.FilePath (dropExtension, takeExtension, (<.>))
-
 -- VoiceBox internal modules
-import VoiceBox.Language.IPA qualified as IPA
-import VoiceBox.Language.Util (writeFileUtf8, errorIO)
+
 import VoiceBox.Audio.Analyze (analyzeAudio, readWaveFile, writeWaveFile)
 import VoiceBox.Audio.Transform qualified as Transform
-import VoiceBox.Types qualified as VB
+import VoiceBox.Language.IPA qualified as IPA
 import VoiceBox.Language.Synth qualified as Synth
+import VoiceBox.Language.Util (errorIO, writeFileUtf8)
+import VoiceBox.Types qualified as VB
 
 -- | Command-line options
 data Options = Options
@@ -79,14 +79,12 @@ opts =
         ("voice-box version " <> show version)
         (long "version" <> short 'v' <> help "Show version information")
 
-
-
 main :: IO ()
-main = (execParser opts >>= processFile)
-  `catch` \(e :: SomeException) -> do
-    putStrLn $ "\n[ERROR] " ++ displayException e
-    exitFailure
-
+main =
+  (execParser opts >>= processFile)
+    `catch` \(e :: SomeException) -> do
+      putStrLn $ "\n[ERROR] " ++ displayException e
+      exitFailure
 
 processFile :: Options -> IO ()
 processFile optsValues = do
@@ -109,7 +107,6 @@ processFile optsValues = do
         else synthesizeFromText optsValues path
 
 -- | Analyze a WAV file and print extracted features
-
 analyzeWavFile :: Options -> FilePath -> IO ()
 analyzeWavFile optsValues path = do
   putStrLn $ "Analyzing WAV file: " ++ path
@@ -138,7 +135,6 @@ analyzeWavFile optsValues path = do
       (VB.afSegments features)
 
 -- | Apply the PreDoll-0 transformation to a WAV file
-
 transformWavFile :: Options -> FilePath -> IO ()
 transformWavFile optsValues path = do
   putStrLn $ "Applying PreDoll-0 transformation to: " ++ path
@@ -173,7 +169,6 @@ transformWavFile optsValues path = do
         Nothing -> putStrLn ("Saved transformed audio to: " ++ outputFile)
 
 -- | Synthesize audio from a text file
-
 synthesizeFromText :: Options -> FilePath -> IO ()
 synthesizeFromText optsValues path = do
   result <- IPA.parseFile path
@@ -191,4 +186,5 @@ synthesizeFromText optsValues path = do
   putStrLn $ "Saving " <> soundFile <> " ..."
   saveWav soundFile sampleRate sound
   return ()
+
 -- | Synthesize audio from a text file: parses, optionally writes debug output, and saves the WAV.

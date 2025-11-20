@@ -8,7 +8,7 @@ import Data.List as List
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.List.NonEmpty qualified as NE
 import Data.Word (Word16)
-import LambdaSound hiding (I, f1, f2, d1, d2)
+import LambdaSound hiding (I, d1, d2, f1, f2)
 import LambdaSound qualified as Sound
 import VoiceBox.Language.IPA.Types hiding (I)
 import VoiceBox.Language.IPA.Types as PR
@@ -22,14 +22,14 @@ paragraphToSound :: [Foot] -> Sound T Pulse
 paragraphToSound feet =
   let content = evalState (chainSynthisis footToSound feet) A
       -- Apply a short fade-in to eliminate the initial pop
-      fadeInDur = 0.010  -- 10ms fade-in at the start
+      fadeInDur = 0.010 -- 10ms fade-in at the start
       fadeInEnv = fadeInDur |-> fmap realToFrac progress
       contentWithFadeIn = zipSoundWith (*) content fadeInEnv
    in contentWithFadeIn >>> utteranceBoundarySound
 
 -- | Crossfade duration in seconds to smooth segment transitions
 crossfadeDuration :: Duration
-crossfadeDuration = 0.050  -- 50ms crossfade to test if longer fades help
+crossfadeDuration = 0.050 -- 50ms crossfade to test if longer fades help
 
 -- | Smooth concatenation with crossfade to eliminate pops/clicks at segment boundaries
 -- Overlaps the end of s1 with the start of s2 using linear fade envelopes
@@ -38,57 +38,56 @@ s1 >>>= s2 =
   let d1 = getDuration s1
       d2 = getDuration s2
       fadeTime = crossfadeDuration
-
-      -- If either sound is too short to crossfade, apply per-segment
+   in -- If either sound is too short to crossfade, apply per-segment
       -- ease-in / ease-out fades instead of doing a hard concat. This
       -- avoids an abrupt discontinuity while preserving the short
       -- transient. If both are short we overlap their faded versions.
-  in if d1 <= fadeTime || d2 <= fadeTime
-     then
-       let -- create fade envelopes that span the entire short sound
-           fadeOutAll = d1 |-> fmap (realToFrac . (1.0 -)) progress
-           fadeInAll = d2 |-> fmap realToFrac progress
+      if d1 <= fadeTime || d2 <= fadeTime
+        then
+          let -- create fade envelopes that span the entire short sound
+              fadeOutAll = d1 |-> fmap (realToFrac . (1.0 -)) progress
+              fadeInAll = d2 |-> fmap realToFrac progress
 
-           s1Faded = zipSoundWith (*) s1 fadeOutAll
-           s2Faded = zipSoundWith (*) s2 fadeInAll
-        in case (d1 <= fadeTime, d2 <= fadeTime) of
-             (True, True) ->
-               -- both too short: overlap the faded short segments so the
-               -- transition is smooth rather than an abrupt cut
-               parallel2 s1Faded s2Faded
-             (True, False) ->
-               -- s1 is short: fade it out fully, then concat with s2
-               s1Faded >>> s2
-             (False, True) ->
-               -- s2 is short: fade it in fully, then concat after s1
-               s1 >>> s2Faded
-             -- Exhaustive fallback (should be unreachable because the
-             -- surrounding `if` guarantees at least one is short). Keep a
-             -- safe default to satisfy exhaustiveness checks.
-             _ -> s1 >>> s2
-     else
-       let -- Split s1 into main part and tail to fade out
-           s1Main = takeSound (d1 - fadeTime) s1
-           s1Tail = dropSound (d1 - fadeTime) s1
+              s1Faded = zipSoundWith (*) s1 fadeOutAll
+              s2Faded = zipSoundWith (*) s2 fadeInAll
+           in case (d1 <= fadeTime, d2 <= fadeTime) of
+                (True, True) ->
+                  -- both too short: overlap the faded short segments so the
+                  -- transition is smooth rather than an abrupt cut
+                  parallel2 s1Faded s2Faded
+                (True, False) ->
+                  -- s1 is short: fade it out fully, then concat with s2
+                  s1Faded >>> s2
+                (False, True) ->
+                  -- s2 is short: fade it in fully, then concat after s1
+                  s1 >>> s2Faded
+                -- Exhaustive fallback (should be unreachable because the
+                -- surrounding `if` guarantees at least one is short). Keep a
+                -- safe default to satisfy exhaustiveness checks.
+                _ -> s1 >>> s2
+        else
+          let -- Split s1 into main part and tail to fade out
+              s1Main = takeSound (d1 - fadeTime) s1
+              s1Tail = dropSound (d1 - fadeTime) s1
 
-           -- Split s2 into head to fade in and rest
-           s2Head = takeSound fadeTime s2
-           s2Rest = dropSound fadeTime s2
+              -- Split s2 into head to fade in and rest
+              s2Head = takeSound fadeTime s2
+              s2Rest = dropSound fadeTime s2
 
-           -- Create linear fade envelopes using progress (0 to 1 over duration)
-           -- fadeOut: starts at 1, ends at 0
-           -- fadeIn: starts at 0, ends at 1
-           -- Convert Progress to Pulse using fmap
-           fadeOut = fadeTime |-> fmap (realToFrac . (1.0 -)) progress
-           fadeIn = fadeTime |-> fmap realToFrac progress
+              -- Create linear fade envelopes using progress (0 to 1 over duration)
+              -- fadeOut: starts at 1, ends at 0
+              -- fadeIn: starts at 0, ends at 1
+              -- Convert Progress to Pulse using fmap
+              fadeOut = fadeTime |-> fmap (realToFrac . (1.0 -)) progress
+              fadeIn = fadeTime |-> fmap realToFrac progress
 
-           -- Apply fades using zipSoundWith for element-wise multiplication
-           s1TailFaded = zipSoundWith (*) s1Tail fadeOut
-           s2HeadFaded = zipSoundWith (*) s2Head fadeIn
+              -- Apply fades using zipSoundWith for element-wise multiplication
+              s1TailFaded = zipSoundWith (*) s1Tail fadeOut
+              s2HeadFaded = zipSoundWith (*) s2Head fadeIn
 
-           -- Overlap the faded sections
-           crossfaded = parallel2 s1TailFaded s2HeadFaded
-       in s1Main >>> crossfaded >>> s2Rest
+              -- Overlap the faded sections
+              crossfaded = parallel2 s1TailFaded s2HeadFaded
+           in s1Main >>> crossfaded >>> s2Rest
 
 infixr 9 >>>=
 

@@ -1,12 +1,14 @@
 module Main where
 
 import Test.Tasty
-import qualified VoiceBox.Audio.EarTest as EarTest
-import qualified VoiceBox.Language.ParseGoldenTest as LanguageTest
+import VoiceBox.Audio.EarTest qualified as EarTest
+import VoiceBox.Language.ParseGoldenTest qualified as LanguageTest
 
 main :: IO ()
-main = defaultMain $
-  testGroup "VoiceBox Tests"
-    [ EarTest.tests
-    , LanguageTest.tests
-    ]
+main =
+  defaultMain $
+    testGroup
+      "VoiceBox Tests"
+      [ EarTest.tests,
+        LanguageTest.tests
+      ]

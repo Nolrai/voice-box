@@ -4,22 +4,22 @@
 --
 -- NOTE: Smooth (spectral smoothing) is now always enabled, so tags are 4 characters
 
-import System.Directory (listDirectory, doesFileExist)
+import Control.Monad (filterM, forM_)
+import Data.List (isPrefixOf, isSuffixOf, sort)
+import System.Directory (doesFileExist, listDirectory)
 import System.Environment (getArgs)
 import System.Process (callCommand)
-import Data.List (sort, isPrefixOf, isSuffixOf)
-import Control.Monad (filterM, forM_)
 
 -- | Extract the toggle tag from a filename like "predoll0__YNYNN_02_vocoder.wav"
 -- Returns the tag string (e.g., "YNYNN") or Nothing if not found
 extractTag :: String -> Maybe String
 extractTag filename =
   case dropWhile (/= '_') filename of
-    ('_':'_':rest) ->
+    ('_' : '_' : rest) ->
       let tag = takeWhile (/= '_') rest
-      in if all (`elem` "YN") tag && not (null tag)
-         then Just tag
-         else Nothing
+       in if all (`elem` "YN") tag && not (null tag)
+            then Just tag
+            else Nothing
     _ -> Nothing
 
 -- | Count how many 'Y' characters are in a tag
@@ -29,8 +29,8 @@ countYs = length . filter (== 'Y')
 -- | Parse a filename into (toggleCount, tag, filepath)
 parseFile :: FilePath -> String -> Maybe (Int, String, FilePath)
 parseFile dir filename
-  | "predoll0__" `isPrefixOf` filename &&
-    "_03_vocoder_speedup.wav" `isSuffixOf` filename =
+  | "predoll0__" `isPrefixOf` filename
+      && "_03_vocoder_speedup.wav" `isSuffixOf` filename =
       case extractTag filename of
         Just tag -> Just (countYs tag, tag, dir ++ "/" ++ filename)
         Nothing -> Nothing
@@ -45,7 +45,7 @@ main = do
   files <- listDirectory dir
 
   -- Parse and filter vocoder files
-  let parsed = [ p | f <- files, Just p <- [parseFile dir f] ]
+  let parsed = [p | f <- files, Just p <- [parseFile dir f]]
 
   -- Sort by toggle count (fewest Y's first)
   let sorted = sort parsed
@@ -62,6 +62,6 @@ main = do
         if exists
           then do
             putStrLn $ "Playing: " ++ tag ++ " (" ++ show count ++ " toggles enabled)"
-            callCommand $ "aplay " ++ show path  -- show adds quotes for shell safety
+            callCommand $ "aplay " ++ show path -- show adds quotes for shell safety
           else
             putStrLn $ "Skipping missing file: " ++ path
