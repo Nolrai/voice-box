@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 
-module Main where
+module Main (main) where
 
 import Control.Exception (SomeException, catch, displayException)
 import Control.Monad (when)
@@ -12,6 +13,18 @@ import Options.Applicative
 import Paths_voice_box (version)
 import System.Exit (exitFailure, exitSuccess)
 import System.FilePath (dropExtension, takeExtension, (<.>))
+import Data.Vector (Vector)
+import Data.Vector qualified as V
+import Data.Vector.Storable qualified as VS
+import Data.Map (Map)
+import Data.Map qualified as Map
+import Data.Int (Int8)
+import qualified Data.Set as Set
+import Data.Text (Text)
+import Data.Text.IO qualified as TIO
+import System.IO (withFile, IOMode (WriteMode))
+
+
 -- VoiceBox internal modules
 
 import VoiceBox.Audio.Analyze (analyzeAudio, readWaveFile, writeWaveFile)
@@ -20,17 +33,21 @@ import VoiceBox.Language.IPA qualified as IPA
 import VoiceBox.Language.Synth qualified as Synth
 import VoiceBox.Language.Util (errorIO, writeFileUtf8)
 import VoiceBox.Types qualified as VB
+import VoiceBox.Audio.Ear qualified as Ear
+import VoiceBox.Audio.Ear.Data qualified as Ear
+import VoiceBox.Audio.Ear.Types (EarResult(EarResult, earPulseCounts, earSampleRate))
 
 -- | Command-line options
 data Options = Options
-  { optInputFile :: FilePath,
-    optOutputFile :: Maybe FilePath,
-    optSampleRate :: Int,
-    optDebug :: Bool,
-    optAnalyze :: Bool,
-    optSynthesize :: Bool,
-    optTransform :: Bool,
-    optBatchToggles :: Bool
+  { optInputFile :: FilePath
+  , optOutputFile :: Maybe FilePath
+  , optSampleRate :: Int
+  , optDebug :: Bool
+  , optAnalyze :: Bool
+  , optSynthesize :: Bool
+  , optTransform :: Bool
+  , optBatchToggles :: Bool
+  , optDollEar :: Bool -- ^ Run DollEar analysis and output pulses CSV
   }
   deriving (Show)
 
@@ -64,6 +81,7 @@ optionsParser =
     <*> switch (long "synthesize" <> short 's' <> help "Synthesize audio from text")
     <*> switch (long "transform" <> short 't' <> help "Apply PreDoll-0 transformation to WAV input")
     <*> switch (long "batch-toggles" <> short 'b' <> help "Batch render multiple toggle combinations")
+    <*> switch (long "doll-ear" <> help "Run DollEar analysis and output pulses CSV")
 
 opts :: ParserInfo Options
 opts =
@@ -83,7 +101,7 @@ main :: IO ()
 main =
   (execParser opts >>= processFile)
     `catch` \(e :: SomeException) -> do
-      putStrLn $ "\n[ERROR] " ++ displayException e
+      putStrLn $ "\n[ERROR] " <> displayException e
       exitFailure
 
 processFile :: Options -> IO ()
@@ -94,6 +112,11 @@ processFile optsValues = do
   -- Transform takes precedence and always exits after running.
   when (optTransform optsValues) $ do
     transformWavFile optsValues path
+    exitSuccess
+
+  -- DollEar analysis takes precedence if set.
+  when (optDollEar optsValues) $ do
+    runDollEarOnWaveFile path
     exitSuccess
 
   -- Only one of analyze/synthesize may be set.
@@ -109,36 +132,77 @@ processFile optsValues = do
 -- | Analyze a WAV file and print extracted features
 analyzeWavFile :: Options -> FilePath -> IO ()
 analyzeWavFile optsValues path = do
-  putStrLn $ "Analyzing WAV file: " ++ path
+  putStrLn $ "Analyzing WAV file: " <> path
   features <- analyzeAudio path
 
   putStrLn "\n=== Analysis Results ==="
-  putStrLn $ "Pitch samples: " ++ show (length $ VB.afPitch features)
-  putStrLn $ "Envelope samples: " ++ show (length $ VB.afEnvelope features)
-  putStrLn $ "Formant frames: " ++ show (length $ VB.afFormants features)
-  putStrLn $ "Segments: " ++ show (length $ VB.afSegments features)
+  putStrLn $ "Pitch samples: " <> show (length $ VB.afPitch features)
+  putStrLn $ "Envelope samples: " <> show (length $ VB.afEnvelope features)
+  putStrLn $ "Formant frames: " <> show (length $ VB.afFormants features)
+  putStrLn $ "Segments: " <> show (length $ VB.afSegments features)
 
   when (optDebug optsValues) $ do
     putStrLn "\nFirst 10 pitch detections:"
     mapM_
-      (\p -> putStrLn $ "  Time: " ++ show (VB.pitchTime p) ++ "s, Freq: " ++ show (VB.pitchFreq p) ++ " Hz")
+      (\p -> putStrLn $ "  Time: " <> show (VB.pitchTime p) <> "s, Freq: " <> show (VB.pitchFreq p) <> " Hz")
       (take 10 $ VB.afPitch features)
 
     putStrLn "\nFirst 10 envelope samples:"
     mapM_
-      (\e -> putStrLn $ "  Time: " ++ show (VB.ampTime e) ++ "s, Amp: " ++ show (VB.ampMagnitude e))
+      (\e -> putStrLn $ "  Time: " <> show (VB.ampTime e) <> "s, Amp: " <> show (VB.ampMagnitude e))
       (take 10 $ VB.afEnvelope features)
 
     putStrLn "\nDetected segments:"
     mapM_
-      (\s -> putStrLn $ "  " ++ VB.segLabel s ++ ": " ++ show (VB.segStart s) ++ "s - " ++ show (VB.segEnd s) ++ "s")
+      (\s -> putStrLn $ "  " <> VB.segLabel s <> ": " <> show (VB.segStart s) <> "s - " <> show (VB.segEnd s) <> "s")
       (VB.afSegments features)
+
+-- | Run DollEar analysis on a WAV file, and outputs the resulting phase pulses.
+
+runDollEarOnWaveFile :: FilePath -> IO ()
+runDollEarOnWaveFile path = do
+  putStrLn $ "Listening to WAV file: " <> path
+  audio <- readWaveFile path
+  case audio of
+    Left err -> putStrLn $ "Error reading WAV file: " <> err
+    Right (samples', rate) -> do
+      let samples = V.fromList . VS.toList $ samples'
+      putStrLn $ "[DollEar] Input vector length: " <> show (V.length samples)
+      putStrLn $ "[DollEar] Using sample rate: " <> show rate
+      let result = Ear.runDollEar Ear.standardHearingCavities (Hz (fromIntegral rate)) samples
+      case result of
+        Nothing -> putStrLn "Error running DollEar (returned Nothing)"
+        Just EarResult {..} -> do
+          putStrLn $ "Extracted " <> show (length earPulseCounts)
+            <> " phase pulses at " <> show earSampleRate <> " Hz sample rate."
+          -- Write pulses to CSV for inspection
+          let outputCSV = dropExtension path <> "_pulses.csv"
+          writePulsesCSV outputCSV earPulseCounts
+          putStrLn $ "Wrote pulses to: " <> outputCSV
+
+-- | Flatten pulses to CSV rows
+pulsesToCSV :: Vector (Map Hz (Map Int Int8)) -> [Text]
+pulsesToCSV pulses =
+  let -- Collect all unique Hz and Int keys
+      hzKeys = Map.keysSet $ Map.unions $ V.toList $ V.map (Map.map (const Map.empty)) pulses
+      intKeys = Set.unions $ map (Set.fromList . Map.keys) $ concatMap Map.elems $ V.toList pulses
+      csvHeader = "time," <> Text.intercalate "," [Text.show hz <> "_" <> Text.show k | hz <- Set.toAscList hzKeys, k <- Set.toAscList intKeys]
+      rows = [ Text.show t <> "," <> Text.intercalate "," [Text.show $ Map.findWithDefault 0 k (Map.findWithDefault Map.empty hz m) | hz <- Set.toAscList hzKeys, k <- Set.toAscList intKeys]
+             | (t, m) <- zip [(0 :: Int) ..] (V.toList pulses)
+             ]
+  in csvHeader : rows
+
+-- | Write CSV to file
+writePulsesCSV :: FilePath -> V.Vector (Map.Map Hz (Map.Map Int Int8)) -> IO ()
+writePulsesCSV path pulses =
+  withFile path WriteMode $ \h ->
+    mapM_ (TIO.hPutStrLn h) (pulsesToCSV pulses)
 
 -- | Apply the PreDoll-0 transformation to a WAV file
 transformWavFile :: Options -> FilePath -> IO ()
 transformWavFile optsValues path = do
-  putStrLn $ "Applying PreDoll-0 transformation to: " ++ path
-  let outputFile = fromMaybe (dropExtension path ++ "_predoll0.wav") (optOutputFile optsValues)
+  putStrLn $ "Applying PreDoll-0 transformation to: " <> path
+  let outputFile = fromMaybe (dropExtension path <> "_predoll0.wav") (optOutputFile optsValues)
 
   if optBatchToggles optsValues
     then do
@@ -157,22 +221,22 @@ transformWavFile optsValues path = do
           forM_ tags $ \(tag, toggles) -> do
             let vocoded = Transform.applyHarmonicVocoder sr fundamental toggles samples
                 final = Transform.applySimpleSpeedup 2.0 vocoded
-                outPath = base ++ "__" ++ tag ++ "_final.wav"
+                outPath = base <> "__" <> tag <> "_final.wav"
             writeWaveFile outPath sr final
-            putStrLn $ "  -> Wrote " ++ outPath
+            putStrLn $ "  -> Wrote " <> outPath
           putStrLn "\nBatch render complete!"
           return ()
     else do
       maybeErr <- Transform.transformWavFile path outputFile
       case maybeErr of
         Just err -> errorIO ("Error: " <> Text.pack err)
-        Nothing -> putStrLn ("Saved transformed audio to: " ++ outputFile)
+        Nothing -> putStrLn ("Saved transformed audio to: " <> outputFile)
 
--- | Synthesize audio from a text file
+-- | Synthesize audio from a text file: parses, optionally writes debug output, and saves the WAV.
 synthesizeFromText :: Options -> FilePath -> IO ()
 synthesizeFromText optsValues path = do
   result <- IPA.parseFile path
-  putStrLn $ "Parsed " ++ show (length result) ++ " utterances."
+  putStrLn $ "Parsed " <> show (length result) <> " utterances."
 
   -- Write debug output if requested.
   when (optDebug optsValues) $
@@ -187,4 +251,3 @@ synthesizeFromText optsValues path = do
   saveWav soundFile sampleRate sound
   return ()
 
--- | Synthesize audio from a text file: parses, optionally writes debug output, and saves the WAV.

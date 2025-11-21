@@ -132,6 +132,7 @@ executable voice-box
 
     -- Other library packages from which modules are imported.
     build-depends:
+        containers ^>=0.7,
         base,
         mtl >= 2.2.2,
         lambdasound,

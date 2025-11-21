@@ -3,6 +3,7 @@ module VoiceBox.Audio.Ear.Data where
 import Data.Complex
 import Data.Vector.Storable hiding ((++))
 import LambdaSound (Hz (Hz))
+import Data.Int (Int8)
 
 -- | The type of resonant cavity accessible to the doll.
 -- 'Drum' refers to a broad, shallow pool or reservoir of red ink, typically filling the interior of a limb cap or body part.
@@ -46,8 +47,9 @@ powerFrequency = 60.0 -- in Hz
 -- - Drums: 360–1800 Hz (5–1 cm, red ink pools)
 -- - BismuthWrapping: 2 kHz–12 kHz (2–30 cm, alchemical pulse speed ~100 m/s)
 -- - ShellResonance: 6–20 kHz (10–30 cm, ceramic shell, v ~4000 m/s)
-standardHearingCavities :: [ResonantCavity]
+standardHearingCavities :: DollEar
 standardHearingCavities =
+  DollEar $
   -- Drums: low frequencies, fewest bands
   [ ResonantCavity Drum 360,
     ResonantCavity Drum 500,
@@ -110,5 +112,5 @@ audioPhaseBitdepth :: Int
 audioPhaseBitdepth = 4 -- 4 bits for phase representation
 
 -- Maximum pulse count based on bit depth
-maxPulses :: Int
+maxPulses :: Int8
 maxPulses = (2 ^ audioPhaseBitdepth) - 1

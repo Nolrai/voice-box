@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
+-- | Property and unit tests for VoiceBox.Audio.Ear DSP pipeline.
+--   Includes arbitrary generators, helpers, and regression tests for core functions.
+
 module VoiceBox.Audio.EarTest (tests) where
 
 import Data.Map (Map)
@@ -11,10 +14,13 @@ import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck hiding (once)
 import VoiceBox.Audio.Ear
+import VoiceBox.Audio.Ear.Data
 import Data.Maybe (listToMaybe, fromMaybe, isJust)
 import Data.Int (Int8)
+import Text.Printf
 
--- Newtype for well-formed maps of vectors (all vectors same nonzero length, at least 1 key in each map)
+-- | Newtype for well-formed maps of vectors.
+--   All vectors must have the same nonzero length, and each map must have at least one key.
 newtype WellFormedMapsOfVectors = WellFormedMapsOfVectors (Map.Map Int (Map.Map Int (V.Vector (Int, Int, Int))))
   deriving (Show, Eq)
 
@@ -149,6 +155,7 @@ instance (Arbitrary a) => Arbitrary (V.Vector a) where
   arbitrary = V.fromList <$> arbitrary
   shrink v = V.fromList <$> shrink (V.toList v)
 
+-- | Main test group for Ear DSP functions.
 tests :: TestTree
 tests =
   testGroup
@@ -161,8 +168,133 @@ tests =
         assertEqual "unzipMapOfVectors" expected actual,
       testProperty "unzipMapOfVectors roundtrip" prop_unzipMapOfVectors_shape,
       testProperty "unzipMapOfVectors wellformed returns Just" prop_unzipMapOfVectors_wellformed_just,
-      testProperty "unzipMapOfVectors malformed returns Nothing" prop_unzipMapOfVectors_malformed_nothing
+      testProperty "unzipMapOfVectors malformed returns Nothing" prop_unzipMapOfVectors_malformed_nothing,
+      test_phaseToPulseCount,
+      test_hilbertPhase
     ]
+
+standardDeviation :: V.Vector Double -> Double
+standardDeviation vec =
+  let n = fromIntegral (V.length vec)
+      mean = if n == 0 then 0 else V.sum vec / n
+      variance = if n < 2 then 0 else V.sum (V.map (\x -> (x - mean) * (x - mean)) vec) / (n - 1)
+   in sqrt variance
+
+--------------------------------------------
+-- hilbertPhase Tests --------------
+--------------------------------------------
+test_hilbertPhase :: TestTree
+test_hilbertPhase =
+  testGroup "hilbertPhase"
+    [ testProperty "output has same length as input" $
+        \x0 x1 list ->
+          let vec = V.fromList $ x0 : x1 : list
+              inputLen = V.length (vec :: V.Vector Double)
+              outputLen = V.length (hilbertPhase vec)
+           in counterexample
+                ( "Input length: "
+                    ++ show inputLen
+                    ++ ", Output length: "
+                    ++ show outputLen
+                )
+                (inputLen == outputLen),
+      testProperty "Unit test for small sin wave" $ testSineWave 75 7500,
+      testProperty "sin wave makes linearly increasing phase" $
+        forAll (choose (10 :: Double, 100)) $ \period ->
+          forAll (choose (ceiling (period * 10), ceiling (period * 100))) $ \len ->
+            testSineWave period len,
+
+      testProperty "constant signal has constant phase" $
+        forAll (choose (-1000.0, 1000.0)) $ \c ->
+          forAll (choose (1, 1000)) $ \len ->
+            let input = V.replicate len c
+                phases = hilbertPhase input
+                firstPhase = if V.null phases then 0 else phases V.! 0
+                allEqual = V.all (\p -> (abs (wrapPhase (p - firstPhase)) / 10) ~~ 0) phases
+            in counterexample
+                ( "Constant: "
+                    ++ show c
+                    ++ ", Length: "
+                    ++ show len
+                )
+                allEqual
+    ]
+
+showAsDegrees :: Double -> String
+showAsDegrees rad = printf "%.2f" (rad * 180 / pi)
+
+showAsDegreesVector :: V.Vector Double -> String
+showAsDegreesVector vec =
+  "[" ++ V.foldr1 (\a b -> a ++ ", " ++ b) (V.map showAsDegrees vec) ++ "]"
+
+testSineWave :: Double -> Int -> Property
+testSineWave period len = counterexample msg (allPositive && allAlmostEqual)
+  where
+    omega = 2 * pi / period
+    input = V.generate len (\n -> sin (omega * fromIntegral n))
+    phases = hilbertPhase input
+    fullDiffs = wrapPhase <$> V.zipWith (-) (V.tail phases) (V.init phases)
+    margin = max 10 (V.length fullDiffs `div` 10)  -- 10% or at least 10 samples
+    interiorLen = V.length fullDiffs - 2 * margin
+    diffs = V.slice margin interiorLen fullDiffs
+    meanDiff = if V.null diffs then 0 else V.sum diffs / fromIntegral (V.length diffs)
+    allPositive = V.all (> 0) diffs
+    allAlmostEqual = standardDeviation diffs < (period / fromIntegral len) -- in radians
+    msgStart = "Period: "
+        ++ show period
+        ++ ", Length: "
+        ++ show len
+        ++ ", Mean diff: "
+        ++ showAsDegrees meanDiff
+        ++ ", Std dev: "
+        ++ showAsDegrees (standardDeviation diffs)
+    msg = msgStart ++
+      if len > 1000 then shortened else full
+    shortened = ", Diffs (first 10): " ++ showAsDegreesVector (V.slice 0 (min 10 (V.length diffs)) diffs)
+    full = ", Diffs: " ++ showAsDegreesVector diffs
+
+--------------------------------------------
+-- phaseToPulseCount Tests --------------
+--------------------------------------------
+
+test_phaseToPulseCount :: TestTree
+test_phaseToPulseCount =
+  testGroup "phaseToPulseCount"
+    [ testCase "unit tests" $ do
+        assertEqual "zero phase" 0 (phaseToPulseCount 0)
+        assertEqual "max positive phase" maxPulses (phaseToPulseCount pi)
+        assertEqual "max negative phase" (-maxPulses) (phaseToPulseCount (-pi + 0.00001)),
+      testProperty
+        "range"
+        ( \x ->
+            let pc = phaseToPulseCount x
+             in pc >= (-maxPulses) && pc <= maxPulses
+        ),
+      testProperty
+        "odd symmetry"
+        ( \x -> phaseToPulseCount (-x) == - (phaseToPulseCount x)
+        ),
+      testProperty
+        "periodicity"
+        ( \x (k :: Int8) ->
+            let plus2pi = phaseToPulseCount (x + 2 * pi * fromIntegral k)
+                original = phaseToPulseCount x
+             in plus2pi == original
+        ),
+      testProperty
+        "monotonicity"
+        ( do
+            x2 <- choose (-pi, pi)
+            x1 <- choose (-pi, x2)
+            let pc1 = phaseToPulseCount x1
+                pc2 = phaseToPulseCount x2
+            return (pc1 <= pc2)
+        )
+    ]
+
+--------------------------------------------
+-- linearPhaseIntensity Tests --------------
+--------------------------------------------
 
 test_linearPhaseIntensity :: TestTree
 test_linearPhaseIntensity =
@@ -172,16 +304,12 @@ test_linearPhaseIntensity =
         "Output is always in [0, 1]"
         prop_linearPhaseIntensity_range,
       testProperty "Values outside [-pi, pi] wrap correctly" prop_linearPhaseIntensity_wrap,
-      testCase "linearPhaseIntensity" $ do
+      testCase "unit tests" $ do
         assertEqual "in-phase" 0.0 (linearPhaseIntensity 0)
         assertEqual "out-of-phase pos" 1.0 (linearPhaseIntensity pi)
         assertEqual "out-of-phase neg" 1.0 (linearPhaseIntensity (-pi))
         assertBool "half-phase" (abs (linearPhaseIntensity (pi / 2) - 0.5) < 1e-6)
     ]
-
---------------------------------------------
--- linearPhaseIntensity Tests --------------
---------------------------------------------
 
 -- Property: Output is always in [-1, 1]
 prop_linearPhaseIntensity_range :: Double -> Property
@@ -223,7 +351,10 @@ test_wrapPhase =
     )
       ++ [ testProperty "Output is always in [-pi, pi]" prop_wrapPhase_range,
            testProperty "wrapPhase is idempotent" prop_wrapPhase_idempotent,
-           testProperty "wrapPhase periodicity" prop_wrapPhase_periodicity
+           testProperty "wrapPhase periodicity" prop_wrapPhase_periodicity,
+           testProperty "wrapPhase symmetry" prop_wrapPhase_symmetry,
+           testProperty "wrapPhase identity on principal domain" $
+            forAll (choose (-pi, pi)) $ \x -> wrapPhase x ~~ x
          ]
 
 -- | output is always in [-pi, pi]
@@ -245,6 +376,9 @@ prop_wrapPhase_periodicity x k =
   let plus2pi = wrapPhase (x + 2 * pi * fromIntegral k)
       original = wrapPhase x
    in plus2pi ~~ original
+
+prop_wrapPhase_symmetry :: Double -> Bool
+prop_wrapPhase_symmetry x = wrapPhase x ~~ (-wrapPhase (-x))
 
 ---------------------------------------------
 -- helper functions -------------------------
