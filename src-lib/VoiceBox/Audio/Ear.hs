@@ -67,15 +67,17 @@ unzipMapOfVectors m
     buildMap :: Int -> Maybe (Map k1 (Map k2 v))
     buildMap i = Map.fromList <$> traverse (`buildInner` i) keys1
 
-    -- \| Return length if all vectors have the same length
-    consistentLength :: Map k1 (Map k2 (Vector v)) -> Maybe Int
-    consistentLength mm = do
-      let lengths = [V.length v | leafMap <- Map.elems mm, v <- Map.elems leafMap]
-      firstLength <- listToMaybe lengths
-      guard (all (== firstLength) lengths)
-      return firstLength
+-- | Return the consistent length of all vectors in a Map of Maps of Vectors.
+consistentLength :: Map k1 (Map k2 (Vector v)) -> Maybe Int
+consistentLength mm = do
+  let lengths = [V.length v | leafMap <- Map.elems mm, v <- Map.elems leafMap]
+  firstLength <- listToMaybe lengths
+  guard (all (== firstLength) lengths)
+  return firstLength
 
+--------------------------------------------
 -- | Reader environment for ear processing.
+--------------------------------------------
 data EarEnv = EarEnv
   { earEnvSampleRate :: Hz,
     earEnvCavity :: ResonantCavity

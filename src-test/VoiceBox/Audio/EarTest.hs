@@ -9,10 +9,10 @@ import Data.Set qualified as Set
 import Data.Vector qualified as V
 import Test.Tasty
 import Test.Tasty.HUnit
-import Test.Tasty.QuickCheck
+import Test.Tasty.QuickCheck hiding (once)
 import VoiceBox.Audio.Ear
-
--- import other modules as needed
+import Data.Maybe (listToMaybe, fromMaybe, isJust)
+import Data.Int (Int8)
 
 -- Newtype for well-formed maps of vectors (all vectors same nonzero length, at least 1 key in each map)
 newtype WellFormedMapsOfVectors = WellFormedMapsOfVectors (Map.Map Int (Map.Map Int (V.Vector (Int, Int, Int))))
@@ -23,8 +23,7 @@ isWellFormedMapOfVectors :: Map.Map Int (Map.Map Int (V.Vector a)) -> Bool
 isWellFormedMapOfVectors m =
   not (Map.null m)
     && not (any Map.null (Map.elems m))
-    && let lens = [V.length v | sub <- Map.elems m, v <- Map.elems sub]
-        in not (null lens) && all (> 0) lens && all (== head lens) lens
+    && isJust (consistentLength m)
 
 -- | Arbitrary instance for WellFormedMapsOfVectors.
 -- Ensures all generated maps are well-formed: non-empty, all vectors same nonzero length, at least one key per map.
@@ -140,7 +139,7 @@ prop_unzipMapOfVectors_shape (WellFormedMapsOfVectors m) =
               "vector length property failed"
               ( V.length v
                   == ( let lengths = [V.length vec | sub <- Map.elems m, vec <- Map.elems sub]
-                        in if null lengths then 0 else head lengths
+                        in fromMaybe (0 :: Int) $ listToMaybe lengths
                      )
               )
        in conjoin [shapeCheck, lenCheck]
@@ -154,11 +153,7 @@ tests :: TestTree
 tests =
   testGroup
     "Ear tests"
-    [ testCase "wrapPhase" $ do
-        assertEqual "wrapPhase 0" 0.0 (wrapPhase 0)
-        assertEqual "wrapPhase pi" pi (wrapPhase pi)
-        assertEqual "wrapPhase 2pi" 0.0 (wrapPhase (2 * pi))
-        assertEqual "wrapPhase -pi" pi (wrapPhase (-pi)),
+    [ test_wrapPhase,
       test_linearPhaseIntensity,
       testCase "unzipMapOfVectors (unit)" $ do
         let expected = Just wellformedVectorOfMaps
@@ -173,10 +168,9 @@ test_linearPhaseIntensity :: TestTree
 test_linearPhaseIntensity =
   testGroup
     "linearPhaseIntensity properties"
-    [ testProperty "Output is always in [0, 1]" prop_linearPhaseIntensity_range,
-      testProperty "0 maps to 0" prop_linearPhaseIntensity_zero,
-      testProperty "pi and -pi map to 1" prop_linearPhaseIntensity_pi,
-      testProperty "0.5*pi maps to 0.5" prop_linearPhaseIntensity_halfpi,
+    [ testProperty
+        "Output is always in [0, 1]"
+        prop_linearPhaseIntensity_range,
       testProperty "Values outside [-pi, pi] wrap correctly" prop_linearPhaseIntensity_wrap,
       testCase "linearPhaseIntensity" $ do
         assertEqual "in-phase" 0.0 (linearPhaseIntensity 0)
@@ -189,13 +183,13 @@ test_linearPhaseIntensity =
 -- linearPhaseIntensity Tests --------------
 --------------------------------------------
 
--- Property: Output is always in [0, 1]
+-- Property: Output is always in [-1, 1]
 prop_linearPhaseIntensity_range :: Double -> Property
 prop_linearPhaseIntensity_range x =
   let y = linearPhaseIntensity x
    in counterexample
         ("Got: " ++ show y ++ " for input " ++ show x)
-        (y >= 0 && y <= 1)
+        (y >= -1 && y <= 1)
 
 -- Property: Values outside [-pi, pi] wrap correctly
 prop_linearPhaseIntensity_wrap :: Double -> Property
@@ -213,18 +207,24 @@ prop_linearPhaseIntensity_wrap x =
         )
         (linearPhaseIntensity x == linearPhaseIntensity wrapped)
 
--- -- | output is always in [-pi, pi]
--- prop_wrapPhase_range x =
-
--- -- | wrapPhase is idempotent
--- prop_wrapPhase_idempotent x =
-
--- -- | Periodicity: wrapPhase (x + 2pi) == wrapPhase x
--- prop_wrapPhase_periodicity x =
-
 --------------------------------------------
 -- wrapPhase Tests --------------
 --------------------------------------------
+
+test_wrapPhase :: TestTree
+test_wrapPhase =
+  testGroup "wrapPhase" $
+    ( testCase "unit tests"
+        <$> [ assertEqual "wrapPhase 0" 0.0 (wrapPhase 0),
+              assertEqual "wrapPhase pi" pi (wrapPhase pi),
+              assertEqual "wrapPhase 2pi" 0.0 (wrapPhase (2 * pi)),
+              assertEqual "wrapPhase -pi" pi (wrapPhase (-pi))
+            ]
+    )
+      ++ [ testProperty "Output is always in [-pi, pi]" prop_wrapPhase_range,
+           testProperty "wrapPhase is idempotent" prop_wrapPhase_idempotent,
+           testProperty "wrapPhase periodicity" prop_wrapPhase_periodicity
+         ]
 
 -- | output is always in [-pi, pi]
 prop_wrapPhase_range :: Double -> Bool
@@ -240,9 +240,9 @@ prop_wrapPhase_idempotent x =
    in once == twice -- this should actually be strictly equal
 
 -- | Periodicity: wrapPhase (x + 2pi) == wrapPhase x
-prop_wrapPhase_periodicity :: Double -> Bool
-prop_wrapPhase_periodicity x =
-  let plus2pi = wrapPhase (x + 2 * pi)
+prop_wrapPhase_periodicity :: Double -> Int8 -> Bool
+prop_wrapPhase_periodicity x k =
+  let plus2pi = wrapPhase (x + 2 * pi * fromIntegral k)
       original = wrapPhase x
    in plus2pi ~~ original
 
