@@ -1,4 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE CPP #-}
+
+#define TRACE(msg) traceM (concat [__FILE__, ":", show (__LINE__ :: Int), " ", msg])
 
 module VoiceBox.Audio.Ear where
 
@@ -14,16 +17,11 @@ import Data.Map qualified as Map
 import Data.Maybe (listToMaybe)
 import Data.Set (Set)
 import Data.Set qualified as Set
-import Data.Vector (Vector)
-import Data.Vector qualified as V
+import Data.Vector.Storable (Vector)
+import Data.Vector.Storable qualified as V
 import LambdaSound (Hz (..))
-import Numeric.Transform.Fourier.FFT (fft, ifft)
 import VoiceBox.Audio.Ear.Data
-import VoiceBox.Audio.Ear.Types
-import Debug.Trace
-
--- might change to a newtype later
-type PulseCounts = Vector (Map Hz (Map Int Int8))
+import VoiceBox.Audio.Ear.Types ( EarResult(EarResult), PulseCounts)
 
 -- | Top-level function: convert audio samples into the doll's perceived pulses.
 -- Includes cavity filtering and biological lag in makeCavityFilter.
@@ -34,72 +32,32 @@ runDollEar ::
   Hz ->
   -- | Input audio samples
   Vector Double ->
-  Maybe EarResult
-runDollEar (DollEar cavities) sampleRate samples = do
-  _ <- traceM $ "[Ear] runDollEar: sampleRate = " <> show sampleRate
-  _ <- traceM $ "[Ear] runDollEar: number of samples = " <> show (V.length samples)
-  let pulsesRaw = runReader (processDollEar samples) (sampleRate, DollEar cavities)
-  _ <- traceM $ "[Ear] runDollEar: pulsesRaw keys = " <> show (Map.keys pulsesRaw)
-  let allLens = [V.length v | leafMap <- Map.elems pulsesRaw, v <- Map.elems leafMap]
-  _ <- traceM $ "[Ear] runDollEar: vector lengths range = " <> show (minimum allLens, maximum allLens)
-  _ <- traceM $ "[Ear] runDollEar: consistentLength = " <> show (consistentLength pulsesRaw)
-  pulses <- unzipMapOfVectors pulsesRaw
-  _ <- traceM $ "[Ear] runDollEar: pulses vector length = " <> show (V.length pulses)
-  pure (EarResult sampleRate pulses)
+  EarResult
+runDollEar (DollEar cavities) sampleRate samples =
+  let rawPulses = runReader (processDollEar samples) (sampleRate, DollEar cavities)
+      pulses = trimMapOfVectorsToMinLength rawPulses
+  in EarResult sampleRate pulses
 
--- | Transpose a Map of Maps of Vectors into a Vector of Maps of Maps.
-unzipMapOfVectors ::
-  forall k1 k2 v.
-  (Ord k1, Ord k2) =>
-  Map k1 (Map k2 (Vector v)) ->
-  Maybe (Vector (Map k1 (Map k2 v)))
-unzipMapOfVectors m =
-  if Map.null mTrimmed then Just V.empty
-  else do
-      vecLen <- consistentLength mTrimmed
-      V.fromList <$> traverse buildMap [0 .. vecLen - 1]
-  where
-    mTrimmed = trimMapOfVectorsToMinLength m
-    keys1 = Map.keys mTrimmed
-
-    buildLeaf :: k2 -> Map k2 (Vector v) -> Int -> Maybe (k2, v)
-    buildLeaf k2 leafMap i = do
-      vec <- Map.lookup k2 leafMap
-      v <- vec V.!? i
-      return (k2, v)
-
-    buildInner :: k1 -> Int -> Maybe (k1, Map k2 v)
-    buildInner k1 i = do
-      leafMap <- Map.lookup k1 mTrimmed
-      fmap (k1,) $ Map.fromList <$> traverse (\k2 -> buildLeaf k2 leafMap i) (Map.keys leafMap)
-
-    buildMap :: Int -> Maybe (Map k1 (Map k2 v))
-    buildMap i = Map.fromList <$> traverse (`buildInner` i) keys1
-
--- | Return the consistent length of all vectors in a Map of Maps of Vectors.
-consistentLength :: Map k1 (Map k2 (Vector v)) -> Maybe Int
-consistentLength mm = do
-  let lengths = [V.length v | leafMap <- Map.elems mm, v <- Map.elems leafMap]
+-- | Return the consistent length of all vectors in a flat Map of Vectors.
+consistentLength :: Map (Hz, Int) (Vector v) -> Maybe Int
+consistentLength m = do
+  let lengths = map V.length (Map.elems m)
   firstLength <- listToMaybe lengths
   guard (all (== firstLength) lengths)
   return firstLength
 
--- | Trim all vectors in a Map of Maps to the minimum length, from the beginning.
--- Why do we trim vectors from the beginning?
+-- | Trim all vectors in a Map to the minimum length, from the beginning.
 -- Each drift vector is computed as phaseTrace[i + delay] - phaseTrace[i],
 -- so its first element corresponds to the *later* time point (i + delay).
 -- To align all drift vectors at the latest possible time (so their last sample
 -- represents the same time index across all delays), we trim from the beginning,
 -- keeping only the last N elements (where N is the minimum vector length).
--- This ensures all vectors are aligned at the end, preserving correct time correspondence
--- for downstream analysis and synthesis.
-trimMapOfVectorsToMinLength :: Map k1 (Map k2 (Vector v)) -> Map k1 (Map k2 (Vector v))
+trimMapOfVectorsToMinLength :: Map (Hz, Int) (Vector v) -> Map (Hz, Int) (Vector v)
 trimMapOfVectorsToMinLength m =
-  let allLens = [V.length v | leafMap <- Map.elems m, v <- Map.elems leafMap]
+  let allLens = map V.length (Map.elems m)
       minLen = if null allLens then 0 else minimum allLens
       trimVec v = V.drop (V.length v - minLen) v
-      trimLeafMap = Map.map trimVec
-  in Map.map trimLeafMap m
+  in Map.map trimVec m
 
 --------------------------------------------
 -- | Reader environment for ear processing.
@@ -134,11 +92,20 @@ makeCavityFilter = do
   return $ V.fromList . iir_df1 coeffs . V.toList
 
 -- | Process input audio for all cavities in a DollEar.
-processDollEar :: V.Vector Double -> Reader (Hz, DollEar) (Map Hz (Map Int (Vector Int8)))
+processDollEar :: V.Vector Double -> Reader (Hz, DollEar) PulseCounts
 processDollEar samples = do
   (sampleRate, DollEar cavities) <- ask
   let runCavity cavity = runReader (extractCavityPulseCounts samples) (EarEnv sampleRate cavity)
-  return $ fromSetWithMonotone cavityFrequency runCavity (Set.fromList cavities)
+  let result = fromSetWithMonotone cavityFrequency runCavity (Set.fromList cavities)
+  pure $ uncurryMap result
+
+-- | uncurry a Map of Maps into a Map with tuple keys.
+uncurryMap :: (Ord k1, Ord k2) => Map k1 (Map k2 a) -> Map (k1, k2) a
+uncurryMap m = Map.fromList
+  [ ((k1, k2), v)
+  | (k1, leafMap) <- Map.toList m,
+    (k2, v) <- Map.toList leafMap
+  ]
 
 -- | Uses 'mapKeysMonotonic' for efficiency, since cavity frequencies (keys) are strictly monotonic and never reordered. This is safe because the input set is always ordered, and avoids the overhead of rebalancing the map. Only use when you are certain the key mapping preserves order!
 fromSetWithMonotone :: (k1 -> k2) -> (k1 -> v) -> Set k1 -> Map k2 v
@@ -159,10 +126,10 @@ hilbertPhase :: Vector Double -> Vector Double
 hilbertPhase x = V.map phase (hilbertTransform x)
 
 hilbertTransform :: Vector Double -> Vector (Complex Double)
-hilbertTransform v = runOnVector ifft xh
+hilbertTransform v = runOnVector FFT.dftCR0 xh
   where
     n = V.length v
-    x = runOnVector fft (V.map (:+ 0) v)
+    x = runOnVector FFT.dftRC (V.map (:+ 0) v)
     xh = V.zipWith (\c m -> c * (m :+ 0)) x (hilbertMask n)
 
 -- | The mask doubles positive frequencies and zeros out negative frequencies,

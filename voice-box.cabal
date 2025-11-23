@@ -81,6 +81,8 @@ library
         VoiceBox.Audio.Transform
         VoiceBox.Pipeline
         VoiceBox.Audio.Ear.Types
+        VoiceBox.Audio.Files
+        VoiceBox.Audio.DSPStream
 
     -- Modules included in this library but not exported.
     other-modules:
@@ -99,12 +101,12 @@ library
         , containers >= 0.7
         , mtl >= 2.2.2
         , process
+        , carray >= 0.1.6
         , filepath
         , vector >=0.13
         , WAVE >=0.1.2
         , split >= 0.2.3
-        , fft
-        , carray
+        , streaming >= 0.2.1
         , safe
         , errors
         , dsp
@@ -141,7 +143,6 @@ executable voice-box
         text,
         optparse-applicative >= 0.18,
         vector >= 0.13,
-
         voice-box,
 
     -- Directories containing source files.
@@ -149,6 +150,8 @@ executable voice-box
 
     -- Base language which the package is written in.
     default-language: GHC2024
+
+    ghc-options: -rtsopts -with-rtsopts=-M8G -prof
 
 test-suite voice-box-test
     -- Import common warning flags.

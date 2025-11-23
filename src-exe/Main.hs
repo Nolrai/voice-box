@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 
 module Main (main) where
 
@@ -13,12 +12,9 @@ import Options.Applicative
 import Paths_voice_box (version)
 import System.Exit (exitFailure, exitSuccess)
 import System.FilePath (dropExtension, takeExtension, (<.>))
-import Data.Vector (Vector)
 import Data.Vector qualified as V
 import Data.Vector.Storable qualified as VS
-import Data.Map (Map)
 import Data.Map qualified as Map
-import Data.Int (Int8)
 import qualified Data.Set as Set
 import Data.Text (Text)
 import Data.Text.IO qualified as TIO
@@ -35,7 +31,8 @@ import VoiceBox.Language.Util (errorIO, writeFileUtf8)
 import VoiceBox.Types qualified as VB
 import VoiceBox.Audio.Ear qualified as Ear
 import VoiceBox.Audio.Ear.Data qualified as Ear
-import VoiceBox.Audio.Ear.Types (EarResult(EarResult, earPulseCounts, earSampleRate))
+import VoiceBox.Audio.Ear.Types (EarResult(..))
+import VoiceBox.Audio.Ear.Data (hzToPeriod)
 
 -- | Command-line options
 data Options = Options
@@ -169,31 +166,38 @@ runDollEarOnWaveFile path = do
       let samples = V.fromList . VS.toList $ samples'
       putStrLn $ "[DollEar] Input vector length: " <> show (V.length samples)
       putStrLn $ "[DollEar] Using sample rate: " <> show rate
-      let result = Ear.runDollEar Ear.standardHearingCavities (Hz (fromIntegral rate)) samples
-      case result of
-        Nothing -> putStrLn "Error running DollEar (returned Nothing)"
-        Just EarResult {..} -> do
-          putStrLn $ "Extracted " <> show (length earPulseCounts)
-            <> " phase pulses at " <> show earSampleRate <> " Hz sample rate."
-          -- Write pulses to CSV for inspection
-          let outputCSV = dropExtension path <> "_pulses.csv"
-          writePulsesCSV outputCSV earPulseCounts
-          putStrLn $ "Wrote pulses to: " <> outputCSV
+      let earResult = Ear.runDollEar Ear.standardHearingCavities (Hz (fromIntegral rate)) samples
+      putStrLn $ "output sample rate: " ++ show (earSampleRate earResult)
+      putStrLn $ "Pulse keys: " ++ show (Map.keys (earPulseCounts earResult))
+      putStrLn $ "Pulse vector lengths: " ++ show (map V.length (Map.elems (earPulseCounts earResult)))
+      putStrLn $ "Extracted " <> show (length (earPulseCounts earResult))
+        <> " phase pulses at " <> show (earSampleRate earResult) <> " Hz sample rate."
+      -- Write pulses to CSV for inspection
+      let outputCSV = dropExtension path <> "_pulses.csv"
+      writePulsesCSV outputCSV earResult
+      putStrLn $ "Wrote pulses to: " <> outputCSV
 
--- | Flatten pulses to CSV rows
-pulsesToCSV :: Vector (Map Hz (Map Int Int8)) -> [Text]
-pulsesToCSV pulses =
-  let -- Collect all unique Hz and Int keys
-      hzKeys = Map.keysSet $ Map.unions $ V.toList $ V.map (Map.map (const Map.empty)) pulses
-      intKeys = Set.unions $ map (Set.fromList . Map.keys) $ concatMap Map.elems $ V.toList pulses
-      csvHeader = "time," <> Text.intercalate "," [Text.show hz <> "_" <> Text.show k | hz <- Set.toAscList hzKeys, k <- Set.toAscList intKeys]
-      rows = [ Text.show t <> "," <> Text.intercalate "," [Text.show $ Map.findWithDefault 0 k (Map.findWithDefault Map.empty hz m) | hz <- Set.toAscList hzKeys, k <- Set.toAscList intKeys]
-             | (t, m) <- zip [(0 :: Int) ..] (V.toList pulses)
-             ]
-  in csvHeader : rows
+-- | Flatten pulses to standard DSP-style CSV:
+-- header with sample rate, timestamp column, pulse columns, and rows with timestamp and pulse values.
+pulsesToCSV :: EarResult -> [Text]
+pulsesToCSV result = [headerMeta, headerCols] ++ rows
+  where
+    sampleRate = earSampleRate result
+    pulsesMap = earPulseCounts result
+    keys = Set.toAscList (Map.keysSet pulsesMap) -- [(Hz, Int)]
+    -- Find the minimum vector length (all vectors are trimmed to this)
+    minLen = fromMaybe 0 (Ear.consistentLength pulsesMap)
+    -- Build header: sample rate metadata, then column names
+    headerMeta = "# sample_rate: " <> Text.pack (show sampleRate)
+    headerCols = "timestamp," <> Text.intercalate "," [Text.pack (show hz) <> "_" <> Text.pack (show k) | (hz, k) <- keys]
+    -- For each sample index, compute timestamp and pulse values
+    period = hzToPeriod sampleRate
+    rows = [ Text.pack (show (fromIntegral i * period)) <> "," <> Text.intercalate "," [Text.pack (show (V.unsafeIndex v i)) | (hz, k) <- keys, let v = Map.findWithDefault V.empty (hz, k) pulsesMap]
+            | i <- [0 .. minLen - 1]
+            ]
 
 -- | Write CSV to file
-writePulsesCSV :: FilePath -> V.Vector (Map.Map Hz (Map.Map Int Int8)) -> IO ()
+writePulsesCSV :: FilePath -> EarResult -> IO ()
 writePulsesCSV path pulses =
   withFile path WriteMode $ \h ->
     mapM_ (TIO.hPutStrLn h) (pulsesToCSV pulses)
